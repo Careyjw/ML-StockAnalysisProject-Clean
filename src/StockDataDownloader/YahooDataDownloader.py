@@ -8,6 +8,8 @@ Contains specialized methods to download stock data from Yahoo
 '''
 
 from .SharedUtilities import openURL
+from datetime import datetime as dt
+from StockDataDownloader.SharedUtilities import TickerDataStorage
 
 crumbURL = 'https://finance.yahoo.com/quote/AAPL?p=AAPL'
 baseURL = 'https://query1.finance.yahoo.com/v7/finance/download/{0}?period1={1}&period2={2}&interval=1d&events=history&crumb={3}'
@@ -50,19 +52,99 @@ def getCookieAndCrumb():
             endIndex = line.find("}", index)
             crumb = line[index : endIndex + 1]
     crumb = crumb.split(":")[-1][:-2]
-    return [cookie, crumb]
+    #First character of the crumb is a quotation mark, and is not a valid part of the crumb.
+    return [cookie, crumb[1:]]
 
 def buildURL (ticker, startDate, endDate, crumb):
     '''Builds URL for data retrieval
         @param ticker: ticker of the stock to retrieve data for
         @type ticker: String
-        @param startDate: UNIX timestamp for the date to begin obtaining data for
+        @param startDate: POSIX timestamp for the date to begin obtaining data for
         @type startDate: int
-        @param endDate: UNIX timestamp for the final date to obtain data for
+        @param endDate: POSIX timestamp for the final date to obtain data for
         @type endDate: int
         @param crumb: Crumb to use for data retrieval, obtained from getCrumbAndCookie
         @type crumb: String
         @return: URL used to obtain data from
         @rtype: String
     '''
+    return baseURL.format(ticker, startDate, endDate, crumb)
+
+def convertString(in_str, flag='float'):
+    '''Converts the given string into its numeric representation with basic error correction
+    @param in_str: String to be converted
+    @type in_str: String
+    @param flag: Flag to specify which conversion to attempt
+    @type flag: String. Accepted values: 'float' or 'int'
+    @return: Numeric representation of the string provided, -1 if a ValueError occurs, or None if a TypeError occurs
+    @rtype: float or int, depending on the flag, or None if TypeError occurs
+    '''
+    if flag == 'float':
+        try:
+            ret = float(in_str)
+        except ValueError:
+            ret = -1
+        except TypeError:
+            ret = None
+    elif flag == 'int':
+        try:
+            ret = int(in_str)
+        except ValueError:
+            ret = -1
+        except TypeError:
+            ret = None    
+    
+    return ret
+
+
+def formatDayData(data):
+    '''Formats the provided data string into storage format
+    @param data: Data string to format
+    @type data: string
+    @return: Array of data extracted and formatted from string
+    @rtype: [datetime.datetime, float, float, float, float, float, int]
+    '''
+    
+    split = data.rstrip().split(",")
+    day = dt.strptime(split[0], "%Y-%m-%d")
+    open_price = convertString(split[1])
+    high_price = convertString(split[2])
+    low_price = convertString(split[3])
+    close_price = convertString(split[4])
+    adj_close = convertString(split[5])
+    volume_data = convertString(split[6], flag='int')
+    return [day, open_price, high_price, low_price, close_price, adj_close, volume_data]
+    
+
+def getDataFromURL(url, ticker, cookie):
+    '''Obtains data from the URL
+        @param url: URL to obtain data for
+        @type url: String
+        @param ticker: Ticker to assign to the data storage object
+        @type ticker: String
+        @param cookie: 
+        
+        Cookie to use for connection to Yahoo Servers
+        Obtained from getCookieAndCrumb
+        @type cookie: String
+        @return: Data storage object containing the retrieved data
+        @rtype: TickerDataStorage
+    '''
+    data = []
+    status = openURL(url, cookie=cookie);
+    if (status[0]):
+        reply = status[1]
+        for line in reply:
+            data.append(line.decode());
+        data = data[1:] #Removes the first line, which just says the format the data is in
+    else:
+        if (type(status[1]) == type(4)):
+            raise ValueError("Ticker {0} errored with HTTP code {1}".format(ticker, status[1]));
+        else:
+            raise status[1];
+    dataStorage = TickerDataStorage(ticker)
+    for dayData in data:
+        dataStorage.addData(formatDayData(dayData))
+    return dataStorage;
+
 

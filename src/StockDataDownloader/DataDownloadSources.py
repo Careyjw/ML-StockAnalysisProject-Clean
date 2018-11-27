@@ -9,7 +9,9 @@ These methods will call further sub methods to accomplish their tasks
 that are not needed to be visible for the calling method(s)
 '''
 
-from .YahooDataDownloader import getCookieAndCrumb, buildURL
+from .YahooDataDownloader import getCookieAndCrumb, buildURL, getDataFromURL
+from .SharedUtilities import SourceDataStorage
+from datetime import datetime as dt
 
 
 def DownloadDataYahoo (tickerList):
@@ -17,14 +19,18 @@ def DownloadDataYahoo (tickerList):
         @param tickerList: The list of stock tickers to obtain data for
         @type tickerList: Array of Strings
         @return Storage object containing obtained data
-        @rtype: StockDataStorage
+        @rtype: SourceDataStorage
     '''
-    
+    dataStorage = SourceDataStorage("Yahoo")
     cookie, crumb = getCookieAndCrumb()
-    
-    
-    
-    pass;
+    for ticker in tickerList:
+        today = dt.now();
+        downloadURL = buildURL(ticker, 0, round(today.timestamp()), crumb)
+        print(downloadURL)
+        tickerDataStorage = getDataFromURL(downloadURL, ticker, cookie)
+        dataStorage.addTickerDataStorage(tickerDataStorage)
+    print(dataStorage.tickers[0].data[1]);
+    return dataStorage
     
 def DownloadDataGoogle (tickerList):
     '''Downloads Stock Data from Google
@@ -32,5 +38,6 @@ def DownloadDataGoogle (tickerList):
         @type tickerList: Array of Strings
         @return Storage object containing obtained data
         @rtype: StockDataStorage
+        @status: Not Implemented
     '''    
     pass;
