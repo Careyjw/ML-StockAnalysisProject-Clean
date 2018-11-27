@@ -9,6 +9,7 @@ These methods will call further sub methods to accomplish their tasks
 that are not needed to be visible for the calling method(s)
 '''
 
+from .YahooDataDownloader import getCookieAndCrumb, buildURL
 
 
 def DownloadDataYahoo (tickerList):
@@ -18,6 +19,11 @@ def DownloadDataYahoo (tickerList):
         @return Storage object containing obtained data
         @rtype: StockDataStorage
     '''
+    
+    cookie, crumb = getCookieAndCrumb()
+    
+    
+    
     pass;
     
 def DownloadDataGoogle (tickerList):
