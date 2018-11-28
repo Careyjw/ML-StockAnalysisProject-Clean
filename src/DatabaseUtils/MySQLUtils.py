@@ -64,13 +64,7 @@ class MYSQLDataManipulator:
         @param database: The database the table is stored in, if this is None, then the database currently
             focused by the connection is used. The database used is kept between calls to this method.
         @type database: String or None
-        
-        TODO: Determine whether method is finished. It appears that it works,
-            But there is the warning below that should be checked.
-        
-        @warning: Unfinished, and not fit for use as of yet
-        TODO: Finish method
-        
+
         '''
         
         cursor = self.connection.cursor()
@@ -121,7 +115,6 @@ class MYSQLDataManipulator:
             for the slot creation. (I.E. 'primary key', 'auto_increment', etc)
         @param database: The database to create a new table in, if value is None, then uses the currently used database
         @warning: Unfinished and not fit for use
-        TODO: turn columns into one string that can be used for the column declaration in table_creation_sql.
         
         '''
         
@@ -138,8 +131,6 @@ class MYSQLDataManipulator:
             column_declarations.extend([" ".join(column_declaration)])
         
         columnString = ",".join(column_declarations)
-        
-        #TODO: turn columns into one string that can be used for the column declaration in table_creation_sql.
         
         table_creation_sql = "create table %s (%s)" % (table_name, columnString)
         
