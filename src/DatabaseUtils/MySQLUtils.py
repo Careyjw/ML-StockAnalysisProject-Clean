@@ -232,6 +232,6 @@ def uploadData(sourceData, dataManipulator):
     #Select all dates from stock's table
     #Upload all dates not in the table
     
-    #Hello this is a conflict test comment!
+    
     
     pass;
