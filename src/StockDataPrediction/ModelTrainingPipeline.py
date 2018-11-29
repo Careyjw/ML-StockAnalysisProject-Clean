@@ -4,39 +4,56 @@ Created on Nov 27, 2018
 @author: Colton Freitas
 '''
 
+from multiprocessing import pool
+from time import sleep
+
 class ModelTrainingPipeline:
     '''
     Class to handle using multiprocessing techniques to train models
     '''
 
-
-    def __init__(self, max_processes, login_credentials, maxTrainingTickers, dataSelectionMethodID = 0, numClusteringProcesses = None, numTrainingProcesses = None):
+    ''' Previous constructor header.
+    def ___init__(self, max_processes, login_credentials, dataSelectionMethodID = 0, numClusteringProcesses = None, numTrainingProcesses = None) '''
+    
+    def __init__(self, max_processes, login_credentials, numClusteringProcesses = None, numTrainingProcesses = None):
         '''
         Constructor
         
         @param max_processes: Maximum number of processes to be created in the training process
-        @param login_credentials: Login Credentials for the database accessing object inside this class
-        @param maxTrainingTickers: Maximum number of other stocks used to train each stock
+        @param login_credentials: Login Credentials for the database accessing objects inside this class
         @param dataSelectionMethodID: ID of the data selection method. See setDataSelectionMethod
         @param numClusteringProcesses: Number of processes to be used for clustering, or None to automatically set value
         @param numTrainingProcesses: Number of processes to be used for training, or None to automatically set value
         '''
         
         self.trainingObjects = []
+        self.numTrainingProcesses = numTrainingProcesses
+        self.numClusteringProcesses = numClusteringProcesses
+        #self.selectDataSelectionMethod(dataSelectionMethodID)
+        self.loginCredentials = login_credentials
+        self.maxProcesses = max_processes
+        if (self.numClusteringProcesses == None):
+            self.numClusteringProcesses = int(self.maxProcesses / 2)
+        if (self.numTrainingProcesses == None):
+            self.numTrainingProcesses = int(self.maxProcesses / 2)
         
-        pass
-        
-    def selectDataSelectionMethod(self, sel_id):
-        '''Sets the method to be used to process the data before training
-        @param sel_id: The valid id's are defined in TrainingFunctionStorage.py and further information is given there
-        '''
-        pass
+    #===========================================================================
+    # def selectDataSelectionMethod(self, sel_id):
+    #     '''Sets the method to be used to process the data before training
+    #     @param sel_id: The valid id's are defined in TrainingFunctionStorage.py and further information is given there
+    #     '''
+    #     pass
+    # Removed for the time being. Until it is determined whether this is necessary.
+    #===========================================================================
     
-    def __clusterStocksIntoTrainingGroups(self, primaryTicker, loginCredentials):
+    def __clusterStocksIntoTrainingGroups(self, primaryTicker, loginCredentials, trainingPosition):
         '''Clusters stocks into training groups
         @param primaryTicker: Stock to compare all other stocks against
         @param loginCredentials: Login Credentials for the stock data retrieval
-        @return: [primaryTicker, [other tickers assigned based on similarity to primary]
+        @param trainingPosition: Value passed through to ensure that asyncronous creation of training processes
+        do not overwrite. Return as the last element of the return array
+        @return: [primaryTicker, [other tickers assigned based on similarity to primary], trainingPosition] or
+        [trainingPosition] if not ticker should not be trained
         
         This method is intended to be used by a multiprocess pool
         '''
@@ -44,22 +61,112 @@ class ModelTrainingPipeline:
     
     def __clusterCallback(self, resultsGiven):
         '''Adds returned tickers to a TrainingGroup object
-        @param resultsGiven: Results returned from __clusterStocksIntoTrainingGroups
-        If None, no training is done for this ticker
+        @param resultsGiven: Results returned from a clusteringFunction. Example given by return of __clusterStocksIntoTrainingGroups
+        If return is just a one element array, training will not be done for the ticker
         
         '''
-        pass
+        trainingPosition = None
+        if (len(resultsGiven) > 1):
+            #ticker will be trained
+            trainGroup = TrainingGroup(resultsGiven[0])
+            for ticker in resultsGiven[1]:
+                trainGroup.addTicker(ticker)
+            args = (trainGroup, self.trainingFunctionArgs, self.loginCredentials)
+            trainingPosition = resultsGiven[2]
+            if (trainingPosition == 0):
+                self.trainingAsyncWaitingList.append(self.trainingPool.apply_async(func = self.trainingFunction, args))
+            else:
+                isTurn = False
+                while not (isTurn):
+                    isTurn = True
+                    for i in range(trainingPosition):
+                        if (self.trainingAsyncWaitingListCheckIn[i]):
+                            isTurn = False
+                            break
+                    sleep(1)
+                self.trainingAsyncWaitingList.append(self.trainingPool.apply_async(func = self.trainingFunction, args))
+        else:
+            trainingPosition = resultsGiven[0]
+        
+        self.trainingAsyncWaitingListCheckIn[trainingPosition] = False
     
-    def usePipeline(self, trainingFunction, trainingFunctionArgs, clusteringMethod = None):
+    def __addToAsyncWaitingList(self, waitingList, func, args, callback, pool, processCount):
+        '''
+        Handles adding an AsyncResult object to the waiting list without exceeding the processCount
+        
+        :param waitingList: List object to hold AsyncResult objects
+        :param func: Function used in the pool.apply_async method
+        :param args: args passed into func through pool.apply_async method
+        :param callback: callback method passed into pool.apply_async method
+        :param pool: Pool object used to achieve multiprocessing
+        :param processCount: The maximum number of AsyncResult objects to have in the waiting list at once
+        '''
+        while True:
+            for i in range(len(waitingList)):
+                if (waitingList[i].ready()):
+                    del(waitingList[i])
+                if(len(waitingList) < processCount):
+                    waitingList.append(pool.apply_async(func = func, args = args, callback=callback))
+                    return
+            sleep(1)
+        
+    def __cleanAsyncList(self, waitingList):
+        delList = []
+        for i in range(len(waitingList)):
+            if (waitingList[i].ready()):
+                delList.append(waitingList[i])
+        for i in range(len(delList)):
+            waitingList.remove(delList[i])
+    
+    def usePipeline(self, stockList, trainingFunction, trainingFunctionArgs, clusteringMethod = None, numTickers = None):
         '''Handles clustering and use of training function for all tickers
+        @param stockList: List of stock tickers to create models for
         @param trainingFunction: Function to be used for training models
         @type trainingFunction: Function
         @param trainingFunctionArgs: List type object for training function parameter passing
+        This will be passed directly into the trainingFunction, so it is intended to be used
+        For parameters that should available and the same for all trainingFunction calls
         @param clusteringFunction: Either None or Function to be used for clustering stocks together
             If None, then default clustering method in this class is used
+            
+        :TrainingFunctionArugmentList: 
+        <functionName>(trainingTickers : TrainingGroup, trainingFunctionArgs : list, loginCredentials : list)
+        All training functions must have this function header, otherwise they will fail
         
+        @param numTickers: Number of tickers to expect training results for. Use this if the number of tickers trained will be different
+        from len(stockList)
         '''
-        pass
+        
+        if numTickers == None:
+            numTickers = len(stockList)
+        
+        self.trainingFunction = trainingFunction
+        self.trainingFunctionArgs = trainingFunctionArgs
+        
+        trainingPoolProcessCount = self.numTrainingProcesses
+        clusteringPoolProcessCount = self.numClusteringProcesses
+        
+        self.clusteringPool = pool.Pool(clusteringPoolProcessCount)
+        self.trainingPool = pool.Pool(trainingPoolProcessCount)
+        
+        self.trainingAsyncWaitingList = []
+        self.trainingAsyncWaitingListCheckIn = [True] * numTickers
+        
+        clusteringAsyncWaitingList = []
+        for ticker in stockList:
+            if not len(clusteringAsyncWaitingList) < clusteringPoolProcessCount:
+                clusteringAsyncWaitingList.append(self.clusteringPool.apply_async(func = clusteringMethod, (ticker, self.loginCredentials), callback = self.__clusterCallback))
+            else:
+                self.__addToAsyncWaitingList(clusteringAsyncWaitingList, clusteringMethod, (ticker, self.loginCredentials), self.__clusterCallback, self.clusteringPool, self.numClusteringProcesses)
+        
+        
+        while not len(clusteringAsyncWaitingList) == 0:
+            self.__cleanAsyncList(clusteringAsyncWaitingList)
+            sleep(1)
+        
+        while not len(self.trainingAsyncWaitingList) == 0:
+            self.__cleanAsyncList(self.trainingAsyncWaitingList)
+            sleep(1)
         
         
 class TrainingGroup:
