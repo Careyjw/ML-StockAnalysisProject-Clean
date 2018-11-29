@@ -105,17 +105,24 @@ class MYSQLDataManipulator:
         @type create: boolean
         @return: True if the database exists, or is created, False if the database does not exist or cannot be created
         @rtype: boolean
-        TODO: Implement Method
         '''
-        pass;
+
+        cusor = self.connetion.cursor()
+        res = self.select_from_table("schemata", ["SCHEMA_NAME"], conditional="where SCHEMA_NAME == " + database, database="INFORMATION_SCHEMA")
+        if(res.count() == 0):
+            if (create):
+                self.__create_database(database)
+                return True
+            return False
+        return True
+            
         
     def __create_database(self, database):
         '''Creates the specified database
         @param database: The database to create
         @type database: String
-        TODO: Implement Method
         '''
-        pass
+        self.execute_sql("create schema " + database)
         
     def create_table(self, table_name, columns, database = None):
         ''' Creates a table in the database specified 
