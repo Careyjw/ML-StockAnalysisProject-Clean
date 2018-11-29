@@ -7,6 +7,15 @@ Created on Nov 27, 2018
 import mysql.connector as connector
 from mysql.connector.errors import Error as SQLError, InterfaceError
 
+#lists of what types of data are stored... TODO: Refine these two to be a bit... better...
+col_list = ["hist_date", "high_price", "low_price", "opening_price", "close_price", "adj_close", "volume_data"]
+creation_col_list = [["id int primary key auto_increment"], [col_list[0], "Date"], [col_list[1], "float"],
+                     [col_list[2], "float"], [col_list[3], "float"], [col_list[4], "float"], [col_list[5], "float"],
+                     [col_list[6], "long"]]
+
+tableNameBaseString = "{0}_{1}_data"
+#Example formatting of above: tableNameBaseString.format(ticker, sourceName)
+
 def connect(host, user, password, database = None):
     '''Creates and returns a MYSQL database connection
     @param host: Host to connect to
