@@ -21,7 +21,10 @@ def write_default_configs(parser, file_position):
 
 def config_handling():
     '''Does all of the configuration handling using the configparser package
-    
+    This uses a file location hard-built into this module, namely configurationFileLocation
+    This function has the ability to write said file as well with default values
+    @return: List of login credentials
+    @rtype: [String, String, String, String]
     '''
     parser = ConfigParser()
     try:

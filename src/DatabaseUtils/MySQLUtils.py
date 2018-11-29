@@ -8,10 +8,10 @@ import mysql.connector as connector
 from mysql.connector.errors import Error as SQLError, InterfaceError
 
 #lists of what types of data are stored... TODO: Refine these two to be a bit... better...
-col_list = ["hist_date", "high_price", "low_price", "opening_price", "close_price", "adj_close", "volume_data"]
-creation_col_list = [["id int primary key auto_increment"], [col_list[0], "Date"], [col_list[1], "float"],
-                     [col_list[2], "float"], [col_list[3], "float"], [col_list[4], "float"], [col_list[5], "float"],
-                     [col_list[6], "long"]]
+tickerDataTableColList = ["hist_date", "high_price", "low_price", "opening_price", "close_price", "adj_close", "volume_data"]
+tickerDataTableCreationColList = [["id int primary key auto_increment"], [tickerDataTableColList[0], "Date"], [tickerDataTableColList[1], "float"],
+                     [tickerDataTableColList[2], "float"], [tickerDataTableColList[3], "float"], [tickerDataTableColList[4], "float"], [tickerDataTableColList[5], "float"],
+                     [tickerDataTableColList[6], "long"]]
 
 tableNameBaseString = "{0}_{1}_data"
 #Example formatting of above: tableNameBaseString.format(ticker, sourceName)
@@ -62,6 +62,7 @@ class MYSQLDataManipulator:
         if not connectionStatus[0]:
             raise ConnectionError(connectionStatus[1]) 
         self.connection = connectionStatus[1]
+        self.currentDatabase = database
         
     def insert_into_table(self, table, column_names, data, database = None):
         ''' Uploads the information in data into the table specified
@@ -107,15 +108,31 @@ class MYSQLDataManipulator:
         @rtype: boolean
         '''
 
-        cusor = self.connetion.cursor()
-        res = self.select_from_table("schemata", ["SCHEMA_NAME"], conditional="where SCHEMA_NAME == " + database, database="INFORMATION_SCHEMA")
-        if(res.count() == 0):
+        conditionalString = 'where SCHEMA_NAME = "{0}"'.format(database)
+
+        res = self.select_from_table("schemata", ["SCHEMA_NAME"], conditional=conditionalString, database="INFORMATION_SCHEMA")
+        if(len(res) == 0):
             if (create):
                 self.__create_database(database)
                 return True
             return False
         return True
-            
+
+    def checkTableExistence(self, tableName, create=False, columnDeclartionList = None):
+        '''Checks if the table provided by tableName exists in the current database, optionally creating it if not 
+        :param tableName: Name of the table to check for
+        :param create: Flag toggling creation of the table if it does not exist
+        :param columnDeclartionList: If create is True, then this is the column declaration list to use for creating the table
+        '''
+        prevDatabase = self.currentDatabase
+        conditionalString = 'where TABLE_SCHEMA = "{0}" and TABLE_NAME = "{1}"'.format(prevDatabase, tableName)
+        res = self.select_from_table("tables", ["TABLE_NAME"], conditional=conditionalString, database="INFORMATION_SCHEMA")
+        if (len(res) == 0):
+            if (create and not columnDeclartionList == None):
+                self.create_table(tableName, columnDeclartionList, prevDatabase)
+                return True
+            return False
+        return True
         
     def __create_database(self, database):
         '''Creates the specified database
@@ -161,6 +178,7 @@ class MYSQLDataManipulator:
         @type cursor: Cursor
         '''
         cursor.execute("USE %s" % database)
+        self.currentDatabase = database
         
     def select_from_table(self, table_name, column_list, database = None, conditional = None):
         '''Performs the specified SELECT command on the given table
