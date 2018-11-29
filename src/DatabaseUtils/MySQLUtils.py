@@ -224,5 +224,6 @@ def uploadData(sourceData, dataManipulator):
     #Upload all dates not in the table
     
     
+    #Please use insert_into_table from the class provided in this file
     
     pass;
