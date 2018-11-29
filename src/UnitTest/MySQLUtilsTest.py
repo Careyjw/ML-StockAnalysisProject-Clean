@@ -1,4 +1,5 @@
 import unittest
+import DatabaseUtils.MySQLUtils as utils
 
 class MySQLUtilsTest (unittest.TestCase):
 
