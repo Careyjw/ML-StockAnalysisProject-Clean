@@ -114,8 +114,6 @@ class MYSQLDataManipulator:
         @param columns: List of lists containing strings of the slot's name, followed by its type, and then any extra parameters needed
             for the slot creation. (I.E. 'primary key', 'auto_increment', etc)
         @param database: The database to create a new table in, if value is None, then uses the currently used database
-        @warning: Unfinished and not fit for use
-        
         '''
         
         #assuming parameter columns is in the form of [ ['id', 'int', 'primary key', 'auto_increment'], ['col1', 'text'] ... ]
