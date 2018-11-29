@@ -53,7 +53,7 @@ class ModelTrainingPipeline:
         @param trainingPosition: Value passed through to ensure that asyncronous creation of training processes
         do not overwrite. Return as the last element of the return array
         @return: [primaryTicker, [other tickers assigned based on similarity to primary], trainingPosition] or
-        [trainingPosition] if not ticker should not be trained
+        [trainingPosition] if ticker should not be trained
         
         This method is intended to be used by a multiprocess pool
         '''
@@ -125,9 +125,12 @@ class ModelTrainingPipeline:
         @type trainingFunction: Function
         @param trainingFunctionArgs: List type object for training function parameter passing
         This will be passed directly into the trainingFunction, so it is intended to be used
-        For parameters that should available and the same for all trainingFunction calls
+        For parameters that should be available and the same for all trainingFunction calls
         @param clusteringFunction: Either None or Function to be used for clustering stocks together
             If None, then default clustering method in this class is used
+            
+        :ClusteringFunctionArgumentList:
+        Function header is identical to __clusterStocksIntoTrainingGroups
             
         :TrainingFunctionArugmentList: 
         <functionName>(trainingTickers : TrainingGroup, trainingFunctionArgs : list, loginCredentials : list)
