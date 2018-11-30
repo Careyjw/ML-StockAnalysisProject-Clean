@@ -102,7 +102,6 @@ class ModelTrainingPipeline:
         :param processCount: The maximum number of AsyncResult objects to have in the waiting list at once
         '''
         while True:
-            print(waitingList)
             for i in range(len(waitingList)):
                 if (waitingList[i].ready()):
                     del(waitingList[i])
@@ -198,9 +197,3 @@ class TrainingGroup:
     def addTicker(self, ticker):
         '''Adds a ticker to the trainingTickers list'''
         self.trainingTickers.append(ticker)
-    
-        
-        
-        
-        
-    
