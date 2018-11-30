@@ -19,7 +19,7 @@ if __name__ == '__main__':
     data_manager.close(commit = True)
     smtpServer = SimpleEmailSender(host="smtp.gmail.com", port=465, username="mlstockpredictions@gmail.com", password="PrayersAndFaith")
     smtpServer.sendMessage("Hello,\n\tThis message is to inform you that the program, DailyStockDataDownloader, has successfully completed its task. Have a nice day!", "Program Result", to = "freitacr@plu.edu", user_from="Machine Learning Stock Predictions")
-    smtpServer.close();
+    smtpServer.close()
     print("Fin.")
     
     

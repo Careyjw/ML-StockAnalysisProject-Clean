@@ -63,6 +63,7 @@ class MYSQLDataManipulator:
             raise ConnectionError(connectionStatus[1]) 
         self.connection = connectionStatus[1]
         self.currentDatabase = database
+        self.cursor = None
         
     def insert_into_table(self, table, column_names, data, database = None):
         ''' Uploads the information in data into the table specified
@@ -77,19 +78,18 @@ class MYSQLDataManipulator:
 
         '''
         
-        cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor()
         if not database == None:
-            self.__switch_database(database, cursor)
+            self.switch_database(database)
+        else:
+            self.switch_database(self.currentDatabase)
         
         col_string = ",".join(column_names)
         
         insertion_sql = "INSERT INTO %s (%s) VALUES" % (table, col_string)
         insertion_sql += '(' + (','.join(['%s'] * len(column_names))) + ')'
         for to_insert in data:
-            cursor.execute(insertion_sql, to_insert)
-        
-        
-        self.__close_cursor(cursor)
+            self.cursor.execute(insertion_sql, to_insert)
         
     def __close_cursor(self, cursor):
         '''Closes specified cursor
@@ -113,7 +113,7 @@ class MYSQLDataManipulator:
         res = self.select_from_table("schemata", ["SCHEMA_NAME"], conditional=conditionalString, database="INFORMATION_SCHEMA")
         if(len(res) == 0):
             if (create):
-                self.__create_database(database)
+                self.create_database(database)
                 return True
             return False
         return True
@@ -127,6 +127,7 @@ class MYSQLDataManipulator:
         prevDatabase = self.currentDatabase
         conditionalString = 'where TABLE_SCHEMA = "{0}" and TABLE_NAME = "{1}"'.format(prevDatabase, tableName)
         res = self.select_from_table("tables", ["TABLE_NAME"], conditional=conditionalString, database="INFORMATION_SCHEMA")
+        self.switch_database(prevDatabase)
         if (len(res) == 0):
             if (create and not columnDeclartionList == None):
                 self.create_table(tableName, columnDeclartionList, prevDatabase)
@@ -134,12 +135,17 @@ class MYSQLDataManipulator:
             return False
         return True
         
-    def __create_database(self, database):
+    def create_database(self, database):
         '''Creates the specified database
         @param database: The database to create
         @type database: String
+        @return: True if database was created, False otherwise
         '''
-        self.execute_sql("create schema " + database)
+        if not (self.checkDatabaseExistence(database)):
+            self.cursor = self.connection.cursor()
+            self.execute_sql("create schema " + database)
+            return True
+        return False
         
     def create_table(self, table_name, columns, database = None):
         ''' Creates a table in the database specified 
@@ -151,10 +157,12 @@ class MYSQLDataManipulator:
         
         #assuming parameter columns is in the form of [ ['id', 'int', 'primary key', 'auto_increment'], ['col1', 'text'] ... ]
         
-        cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor()
         
         if not database == None:
-            self.__switch_database(database, cursor)
+            self.switch_database(database)
+        else:
+            self.switch_database(self.currentDatabase)
         
         column_declarations = []
         
@@ -166,18 +174,16 @@ class MYSQLDataManipulator:
         table_creation_sql = "create table %s (%s)" % (table_name, columnString)
         
         
-        cursor.execute(table_creation_sql)
+        self.cursor.execute(table_creation_sql)
         
-        self.__close_cursor(cursor)
-
-    def __switch_database(self, database, cursor):
+    def switch_database(self, database):
         ''' Switches the database the DataManipulator is using 
         @param database: The name of the database to use
         @type database: String
         @param cursor: A cursor instance created from the current connection.
         @type cursor: Cursor
         '''
-        cursor.execute("USE %s" % database)
+        self.cursor.execute("USE %s" % database)
         self.currentDatabase = database
         
     def select_from_table(self, table_name, column_list, database = None, conditional = None):
@@ -200,14 +206,15 @@ class MYSQLDataManipulator:
         if not conditional == None:
             sql += " %s" % conditional
         
-        cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor()
         
         if not database == None:
-            self.__switch_database(database, cursor)
+            self.switch_database(database)
+        else:
+            self.switch_database(self.currentDatabase)
+        self.cursor.execute(sql)
+        ret_iter = self.cursor.fetchall()
         
-        cursor.execute(sql)
-        ret_iter = cursor.fetchall()
-        self.__close_cursor(cursor)
         return ret_iter
         
     def execute_sql(self, sql):
@@ -216,15 +223,17 @@ class MYSQLDataManipulator:
         @type sql: String
         @return: Iterator over any data that may have been returned
         '''
-        cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor()
+
+        self.switch_database(self.currentDatabase)
         
-        cursor.execute(sql)
+        self.cursor.execute(sql)
         ret_iter = None
         try:
-            ret_iter = cursor.fetchall()
+            ret_iter = self.cursor.fetchall()
         except InterfaceError:
             pass
-        self.__close_cursor(cursor)
+        
         return ret_iter
     
     def commit(self):

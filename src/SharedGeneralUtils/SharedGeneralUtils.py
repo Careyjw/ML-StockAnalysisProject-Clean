@@ -34,6 +34,7 @@ def config_handling():
         write_default_configs(parser, configurationFileLocation)
     config_file = open(configurationFileLocation, 'r')
     parser.read_file(config_file)
+    config_file.close()
     try:
         user = parser.get('login_credentials', 'user')
         password = parser.get('login_credentials', 'password')
