@@ -53,6 +53,12 @@ class SourceDataStorage:
             @type storage: TickerDataStorage
         '''
         self.tickers.append(storage)
+
+    def __str__(self):
+        return str([self.sourceName, self.tickers])
+
+    def __repr__(self):
+        return self.__str__()
     
 class TickerDataStorage:
     
@@ -77,4 +83,10 @@ class TickerDataStorage:
             volume_data:int]
         '''
         self.data.append(dataArray)
+
+    def __str__(self):
+        return "Data stored for ticker {}".format(self.ticker)
+
+    def __repr__(self):
+        return str([self.ticker, self.data])
     
