@@ -9,7 +9,7 @@ from mysql.connector.errors import Error as SQLError, InterfaceError
 from datetime import date
 
 updateStockListTableSQL = "update stock_list set {0}"
-updateStockListTableSQLForTicker = updateStockListTableSQL + " where ticker = {2}"
+updateStockListTableSQLForTicker = updateStockListTableSQL + " where ticker = '{1}'"
 
 database = "stock_testing"
 
@@ -70,7 +70,6 @@ class MYSQLDataManipulator:
         if not connectionStatus[0]:
             raise ConnectionError(connectionStatus[1]) 
         self.connection = connectionStatus[1]
-        print(self.connection)
         self.currentDatabase = database
         self.cursor = None
         
@@ -284,7 +283,7 @@ def updateStockListTableAfterDataInsertion(dataManipulator, ticker, source):
     '''
 
     sql = updateStockListTableSQLForTicker + ";"
-    sql.format(source+"=1", ticker)
+    sql = sql.format(source+"=1", ticker)
     dataManipulator.execute_sql(sql)
     dataManipulator.commit()
 
@@ -300,7 +299,7 @@ def uploadData(sourceData, dataManipulator):
     
     #Select all dates from stock's table
     #Upload all dates not in the table
-
+    
     pass;
 
 def createStockDatabase(dataManipulator):

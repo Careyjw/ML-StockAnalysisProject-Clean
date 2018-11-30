@@ -74,7 +74,7 @@ class ModelTrainingPipeline:
             args = (trainGroup, self.trainingFunctionArgs, self.loginCredentials)
             trainingPosition = resultsGiven[2]
             if (trainingPosition == 0):
-                self.trainingAsyncWaitingList.append(self.trainingPool.apply_async(func = self.trainingFunction, args))
+                self.trainingAsyncWaitingList.append(self.trainingPool.apply_async(func = self.trainingFunction, args = args))
             else:
                 isTurn = False
                 while not (isTurn):
@@ -84,7 +84,7 @@ class ModelTrainingPipeline:
                             isTurn = False
                             break
                     sleep(1)
-                self.trainingAsyncWaitingList.append(self.trainingPool.apply_async(func = self.trainingFunction, args))
+                self.trainingAsyncWaitingList.append(self.trainingPool.apply_async(func = self.trainingFunction, args = args))
         else:
             trainingPosition = resultsGiven[0]
         
@@ -102,23 +102,30 @@ class ModelTrainingPipeline:
         :param processCount: The maximum number of AsyncResult objects to have in the waiting list at once
         '''
         while True:
+            print(waitingList)
             for i in range(len(waitingList)):
                 if (waitingList[i].ready()):
                     del(waitingList[i])
                 if(len(waitingList) < processCount):
                     waitingList.append(pool.apply_async(func = func, args = args, callback=callback))
                     return
+            if(len(waitingList) < processCount):
+                    waitingList.append(pool.apply_async(func = func, args = args, callback=callback))
+                    return
             sleep(1)
         
     def __cleanAsyncList(self, waitingList):
+        retList = []
         delList = []
         for i in range(len(waitingList)):
             if (waitingList[i].ready()):
                 delList.append(waitingList[i])
         for i in range(len(delList)):
+            retList.append(delList[i].get())
             waitingList.remove(delList[i])
+        return retList
     
-    def usePipeline(self, stockList, trainingFunction, trainingFunctionArgs, clusteringMethod = None, numTickers = None):
+    def usePipeline(self, stockList, trainingFunction, trainingFunctionArgs, clusteringMethod = None):
         '''Handles clustering and use of training function for all tickers
         @param stockList: List of stock tickers to create models for
         @param trainingFunction: Function to be used for training models
@@ -135,13 +142,12 @@ class ModelTrainingPipeline:
         :TrainingFunctionArugmentList: 
         <functionName>(trainingTickers : TrainingGroup, trainingFunctionArgs : list, loginCredentials : list)
         All training functions must have this function header, otherwise they will fail
-        
-        @param numTickers: Number of tickers to expect training results for. Use this if the number of tickers trained will be different
-        from len(stockList)
+
+        @return: List of return values from training functions
         '''
         
-        if numTickers == None:
-            numTickers = len(stockList)
+        
+        numTickers = len(stockList)
         
         self.trainingFunction = trainingFunction
         self.trainingFunctionArgs = trainingFunctionArgs
@@ -156,20 +162,24 @@ class ModelTrainingPipeline:
         self.trainingAsyncWaitingListCheckIn = [True] * numTickers
         
         clusteringAsyncWaitingList = []
+        trainPos = 0
         for ticker in stockList:
             if not len(clusteringAsyncWaitingList) < clusteringPoolProcessCount:
-                clusteringAsyncWaitingList.append(self.clusteringPool.apply_async(func = clusteringMethod, (ticker, self.loginCredentials), callback = self.__clusterCallback))
+                clusteringAsyncWaitingList.append(self.clusteringPool.apply_async(func = clusteringMethod, args = (ticker, self.loginCredentials, trainPos), callback = self.__clusterCallback))
             else:
-                self.__addToAsyncWaitingList(clusteringAsyncWaitingList, clusteringMethod, (ticker, self.loginCredentials), self.__clusterCallback, self.clusteringPool, self.numClusteringProcesses)
-        
+                self.__addToAsyncWaitingList(clusteringAsyncWaitingList, clusteringMethod, (ticker, self.loginCredentials, trainPos), self.__clusterCallback, self.clusteringPool, self.numClusteringProcesses)
+            trainPos += 1
         
         while not len(clusteringAsyncWaitingList) == 0:
             self.__cleanAsyncList(clusteringAsyncWaitingList)
             sleep(1)
         
+        trainingRetList = []
+
         while not len(self.trainingAsyncWaitingList) == 0:
-            self.__cleanAsyncList(self.trainingAsyncWaitingList)
+            trainingRetList.extend(self.__cleanAsyncList(self.trainingAsyncWaitingList))
             sleep(1)
+        return trainingRetList
         
         
 class TrainingGroup:
