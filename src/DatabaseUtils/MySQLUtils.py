@@ -7,7 +7,9 @@ Created on Nov 27, 2018
 import mysql.connector as connector
 from mysql.connector.errors import Error as SQLError, InterfaceError
 
-#lists of what types of data are stored... TODO: Refine these two to be a bit... better...
+stockListTableColList = ["yahoo", "google"]
+stockListTableCreationColList = [["id int primary key auto_increment"], [stockListTableColList[0], "bool"], [stockListTableColList[1], "bool"] ]
+
 tickerDataTableColList = ["hist_date", "high_price", "low_price", "opening_price", "close_price", "adj_close", "volume_data"]
 tickerDataTableCreationColList = [["id int primary key auto_increment"], [tickerDataTableColList[0], "Date"], [tickerDataTableColList[1], "float"],
                      [tickerDataTableColList[2], "float"], [tickerDataTableColList[3], "float"], [tickerDataTableColList[4], "float"], [tickerDataTableColList[5], "float"],
@@ -118,19 +120,19 @@ class MYSQLDataManipulator:
             return False
         return True
 
-    def checkTableExistence(self, tableName, create=False, columnDeclartionList = None):
+    def checkTableExistence(self, tableName, create=False, columnDeclarationList = None):
         '''Checks if the table provided by tableName exists in the current database, optionally creating it if not 
         :param tableName: Name of the table to check for
         :param create: Flag toggling creation of the table if it does not exist
-        :param columnDeclartionList: If create is True, then this is the column declaration list to use for creating the table
+        :param columnDeclarationList: If create is True, then this is the column declaration list to use for creating the table
         '''
         prevDatabase = self.currentDatabase
         conditionalString = 'where TABLE_SCHEMA = "{0}" and TABLE_NAME = "{1}"'.format(prevDatabase, tableName)
         res = self.select_from_table("tables", ["TABLE_NAME"], conditional=conditionalString, database="INFORMATION_SCHEMA")
         self.switch_database(prevDatabase)
         if (len(res) == 0):
-            if (create and not columnDeclartionList == None):
-                self.create_table(tableName, columnDeclartionList, prevDatabase)
+            if (create and not columnDeclarationList == None):
+                self.create_table(tableName, columnDeclarationList, prevDatabase)
                 return True
             return False
         return True
@@ -216,7 +218,7 @@ class MYSQLDataManipulator:
         ret_iter = self.cursor.fetchall()
         
         return ret_iter
-        
+
     def execute_sql(self, sql):
         '''Method to execute a piece of SQL code directly, more for niche usage than normal use
         @param sql: Full sql code to execute
@@ -258,7 +260,7 @@ def uploadData(sourceData, dataManipulator):
     '''Uploads the provided SourceDataStorage object's data to the MySQL database
     @param sourceData: The data storage object to upload data from
     @type sourceData: SourceDataStorage
-    @param dataManipulator: The MySQLDataManipulator object to use to upload
+    @param dataManipulator: The MYSQLDataManipulator object to use to upload
     @type dataManipulator: MYSQLDataManipulator
     TODO: Implement Method
     '''
@@ -269,3 +271,22 @@ def uploadData(sourceData, dataManipulator):
     
     
     pass;
+
+
+def createStockDatabase(dataManipulator):
+    '''Creates the standard stock database format, defined below
+    :param dataManipulator: MYSQLDataManipulator object used to create the database
+    :format:
+
+    Database is listed under the schema "stock_testing",
+    Inside it initially will just be a single table, stock_list,
+    Which will hold the following rows:
+        ticker (will be a valid stock ticker {i.e. 'AAPL'})
+        another column for each data source (currently two),
+            which will store a boolean
+    '''
+
+    dataManipulator.checkDatabaseExistence("stock_testing", create=True)
+    dataManipulator.checkTableExistence("stock_list", create=True, columnDeclarationList=stockListTableCreationColList)
+    
+
