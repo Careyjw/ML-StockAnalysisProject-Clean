@@ -296,11 +296,27 @@ def uploadData(sourceData, dataManipulator):
     @type dataManipulator: MYSQLDataManipulator
     TODO: Implement Method
     '''
-    
-    #Select all dates from stock's table
-    #Upload all dates not in the table
-    
-    pass;
+       #TODO Implement check if exist
+    #grabbing all stocks
+    table="stock_list"
+    columnList1=["ticker"]
+    tickers=dataManipulator.select_from_table(table,columnList)
+    columnList2=["hist_date"]
+	tickers=[x[0] for x in tickers]
+    for stocks in tickers:
+        table=str(stocks)+"_"+str(sourceData.sourceName)+"_data"
+        #Select all dates from stock's table
+        curDates=dataManipulator.select_from_table(table,columnList)
+        curDates=[x[0] for x in curDates]
+		day=sourceData.tickers
+		for temp in day:
+			date=temp.data[0]
+			for d in dates:
+			#Upload all dates not in the table
+				if not d in curDates:
+					insert_into_table(table,col_list,sourceData.data)
+
+
 
 def createStockDatabase(dataManipulator):
     '''Creates the standard stock database format, defined below
