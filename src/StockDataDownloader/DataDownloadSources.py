@@ -24,12 +24,10 @@ def DownloadDataYahoo (tickerList):
     dataStorage = SourceDataStorage("Yahoo")
     cookie, crumb = getCookieAndCrumb()
     for ticker in tickerList:
-        today = dt.now();
+        today = dt.now()
         downloadURL = buildURL(ticker, 0, round(today.timestamp()), crumb)
-        print(downloadURL)
         tickerDataStorage = getDataFromURL(downloadURL, ticker, cookie)
         dataStorage.addTickerDataStorage(tickerDataStorage)
-    print(dataStorage.tickers[0].data[1]);
     return dataStorage
     
 def DownloadDataGoogle (tickerList):

@@ -1,6 +1,8 @@
 import unittest
 from DatabaseUtils import MySQLUtils as utils
 import SharedGeneralUtils.SharedGeneralUtils as genUtils
+from datetime import datetime as dt
+from datetime import date
 
 
 
@@ -11,6 +13,8 @@ class MySQLUtilsTest (unittest.TestCase):
         self.data_man = utils.MYSQLDataManipulator(self.login_credentials[0],self.login_credentials[1], self.login_credentials[2], self.login_credentials[3])
         self.columnDeclarationList = [["id", "int primary key auto_increment"], ["name", "text"]]
         self.columnNameList = [x[0] for x in self.columnDeclarationList if not x[0] == "id"]
+        self.columnDeclarationListNonString = [["id", "int primary key auto_increment"], ["storage", "Date"]]
+        self.columnNameListNonString = [x[0] for x in self.columnDeclarationListNonString if not x[0] == "id"]
     
     def test_databaseCreate(self):
         testingBaseExists = self.data_man.checkDatabaseExistence("newBase")
@@ -63,6 +67,13 @@ class MySQLUtilsTest (unittest.TestCase):
         self.data_man.insert_into_table("test_table", self.columnNameList, [["Hello"]])
         res = self.data_man.select_from_table("test_table", self.columnNameList)
         self.assertEqual(res[0][0], "Hello")
+
+        #Test for non-string inputs
+        self.data_man.create_table("test_table2", self.columnDeclarationListNonString)
+        self.data_man.insert_into_table("test_table2", self.columnNameListNonString, [[dt.now()]])
+        res = self.data_man.select_from_table("test_table2", self.columnNameListNonString)
+        self.assertEqual(res[0][0], date.fromtimestamp(dt.now().timestamp()))
+
         self.data_man.execute_sql("drop table test_table;")
         self.data_man.execute_sql("drop schema newBase;")
 

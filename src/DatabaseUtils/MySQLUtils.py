@@ -6,9 +6,15 @@ Created on Nov 27, 2018
 
 import mysql.connector as connector
 from mysql.connector.errors import Error as SQLError, InterfaceError
+from datetime import date
 
-stockListTableColList = ["yahoo", "google"]
-stockListTableCreationColList = [["id int primary key auto_increment"], [stockListTableColList[0], "bool"], [stockListTableColList[1], "bool"] ]
+updateStockListTableSQL = "update stock_list set {0}"
+updateStockListTableSQLForTicker = updateStockListTableSQL + " where ticker = {2}"
+
+database = "stock_testing"
+
+stockListTableColList = ["ticker", "yahoo", "google"]
+stockListTableCreationColList = [["id int primary key auto_increment"], [stockListTableColList[0], "text"], [stockListTableColList[1], "bool"], [stockListTableColList[2], "bool"] ]
 
 tickerDataTableColList = ["hist_date", "high_price", "low_price", "opening_price", "close_price", "adj_close", "volume_data"]
 tickerDataTableCreationColList = [["id int primary key auto_increment"], [tickerDataTableColList[0], "Date"], [tickerDataTableColList[1], "float"],
@@ -64,6 +70,7 @@ class MYSQLDataManipulator:
         if not connectionStatus[0]:
             raise ConnectionError(connectionStatus[1]) 
         self.connection = connectionStatus[1]
+        print(self.connection)
         self.currentDatabase = database
         self.cursor = None
         
@@ -72,7 +79,9 @@ class MYSQLDataManipulator:
         
         @param column_names: List containing the names of the slots to put each column of data into
         @type column_names: [String, String ...., String]
-        @param data: List of data to insert into the table, len(data) must equal len(column_names)
+        @param data: List of data to insert into the table, len(data) must equal len(column_names),
+            :NOTE: data is assumed to be a 2D array of data sets to insert, so to insert one element
+            It must be passed as [[element]]
         @type data: specified by column_names
         @param database: The database the table is stored in, if this is None, then the database currently
             focused by the connection is used. The database used is kept between calls to this method.
@@ -254,7 +263,31 @@ class MYSQLDataManipulator:
             self.connection.commit()
         self.connection.close()
         
-        
+def clearDataFromStockListTable(dataManipulator):
+    '''Sets the value of all columns except for ticker and id in stock_list to False
+    @param dataManipulator: The MYSQLDataManipulator object to use to upload
+    @type dataManipulator: MYSQLDataManipulator
+    '''
+    
+    sources = [x+"=0" for x in stockListTableColList[1:]]
+    sourcesString = ", ".join(sources)
+    sql = updateStockListTableSQL.format(sourcesString) + ";"
+    dataManipulator.execute_sql(sql)
+    dataManipulator.commit()
+
+def updateStockListTableAfterDataInsertion(dataManipulator, ticker, source):
+    '''
+    @param dataManipulator: The MYSQLDataManipulator object to use to upload
+    @type dataManipulator: MYSQLDataManipulator
+    @param ticker: String of the stock ticker
+    @param source: Name of source to update for
+    '''
+
+    sql = updateStockListTableSQLForTicker + ";"
+    sql.format(source+"=1", ticker)
+    dataManipulator.execute_sql(sql)
+    dataManipulator.commit()
+
         
 def uploadData(sourceData, dataManipulator):
     '''Uploads the provided SourceDataStorage object's data to the MySQL database
@@ -267,11 +300,8 @@ def uploadData(sourceData, dataManipulator):
     
     #Select all dates from stock's table
     #Upload all dates not in the table
-    
-    
-    
-    pass;
 
+    pass;
 
 def createStockDatabase(dataManipulator):
     '''Creates the standard stock database format, defined below
@@ -285,8 +315,9 @@ def createStockDatabase(dataManipulator):
         another column for each data source (currently two),
             which will store a boolean
     '''
-
-    dataManipulator.checkDatabaseExistence("stock_testing", create=True)
-    dataManipulator.checkTableExistence("stock_list", create=True, columnDeclarationList=stockListTableCreationColList)
     
+    dataManipulator.checkDatabaseExistence(database, create=True)
+    dataManipulator.switch_database(database)
+    dataManipulator.checkTableExistence("stock_list", create=True, columnDeclarationList=stockListTableCreationColList)
+
 
