@@ -85,8 +85,8 @@ class TickerDataStorage:
         self.data.append(dataArray)
 
     def __str__(self):
-        return "Data stored for ticker {}".format(self.ticker)
+        return "Data stored for ticker {}: {} entries".format(self.ticker, len(self.data))
 
     def __repr__(self):
-        return str([self.ticker, self.data])
+        return self.__str__()
     
