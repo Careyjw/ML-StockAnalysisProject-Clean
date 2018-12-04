@@ -16,7 +16,7 @@ database = "stock_testing"
 stockListTableColList = ["ticker", "yahoo", "google"]
 stockListTableCreationColList = [["id int primary key auto_increment"], [stockListTableColList[0], "text"], [stockListTableColList[1], "bool"], [stockListTableColList[2], "bool"] ]
 
-tickerDataTableColList = ["hist_date", "high_price", "low_price", "opening_price", "close_price", "adj_close", "volume_data"]
+tickerDataTableColList = ["hist_date", "opening_price", "high_price", "low_price", "close_price", "adj_close", "volume_data"]
 tickerDataTableCreationColList = [["id int primary key auto_increment"], [tickerDataTableColList[0], "Date"], [tickerDataTableColList[1], "float"],
                      [tickerDataTableColList[2], "float"], [tickerDataTableColList[3], "float"], [tickerDataTableColList[4], "float"], [tickerDataTableColList[5], "float"],
                      [tickerDataTableColList[6], "long"]]
@@ -247,11 +247,15 @@ class MYSQLDataManipulator:
         return ret_iter
     
     def commit(self):
-        '''connection.commit() wrapper'''
+        '''
+        connection.commit() wrapper
+        '''
         self.connection.commit()
     
     def rollback(self):
-        '''connection.rollback() wrapper'''
+        '''
+        connection.rollback() wrapper
+        '''
         self.connection.rollback()
         
     def close(self, commit=True):
