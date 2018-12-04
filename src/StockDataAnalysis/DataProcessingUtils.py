@@ -8,7 +8,7 @@ Created on Nov 27, 2018
 This file should contain classes and functions used to process data stored in the database
 Into a usable format for machine learning training and clustering
 '''
-from DatabaseUtils.MySQLUtils import MYSQLDataManipulator, stockListTableColList, database, tableNameBaseString
+from DatabaseUtils.MySQLUtils import MYSQLDataManipulator, stockListTableColList, tableNameBaseString
 from StockDataDownloader.SharedUtilities import SourceDataStorage, TickerDataStorage
 from datetime import datetime as dt
 
@@ -156,7 +156,7 @@ class DataProcessor:
             which contain lists of TickerDataStorage objects without data, but with tickers
         '''
 
-        storedTickers = self.dataManager.select_from_table("stock_list", stockListTableColList, database=database)
+        storedTickers = self.dataManager.select_from_table("stock_list", stockListTableColList)
         val = []
         for ticker in storedTickers:
             for i in range(len(ticker[1:])):

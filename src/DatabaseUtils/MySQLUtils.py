@@ -193,6 +193,7 @@ class MYSQLDataManipulator:
         @param cursor: A cursor instance created from the current connection.
         @type cursor: Cursor
         '''
+        self.cursor = self.connection.cursor()
         self.cursor.execute("USE %s" % database)
         self.currentDatabase = database
         
@@ -234,7 +235,6 @@ class MYSQLDataManipulator:
         @return: Iterator over any data that may have been returned
         '''
         self.cursor = self.connection.cursor()
-
         self.switch_database(self.currentDatabase)
         
         self.cursor.execute(sql)
