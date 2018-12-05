@@ -26,6 +26,9 @@ class DataProcessor:
         '''
         
         self.dataManager = MYSQLDataManipulator(login_credentials[0], login_credentials[1], login_credentials[2], login_credentials[3])
+
+    def close(self):
+        self.dataManager.close()
         
     def calculatePercentageChanges(self, column, startDate = None, endDate = None):
         '''Calculates the Limited Numeric Change (defined below) for all stocks in database
@@ -177,7 +180,7 @@ class DataProcessor:
         return ret
 
     
-    def getRawData(self, columnList, startDate=None, endDate=None):
+    def getRawData(self, columnList, startDate=None, endDate=None) -> list:
         '''Obtains raw data for all tickers stored in the database
         @param columnList: List of database table columns to extract data from.
         @param startDate: Starting date of the period to calculate changes with.

@@ -8,6 +8,7 @@ import mysql.connector as connector
 from mysql.connector.errors import Error as SQLError, InterfaceError
 from datetime import date
 
+
 updateStockListTableSQL = "update stock_list set {0}"
 updateStockListTableSQLForTicker = updateStockListTableSQL + " where ticker = '{1}'"
 
@@ -43,9 +44,9 @@ def connect(host, user, password, database = None):
             ret = connector.connect(host = host, user = user, password = password)
         else:
             ret = connector.connect(host = host, user = user, password = password, database = database)
-    except SQLError as e:
+    except (SQLError, Exception) as e:
         ret = [False, e]
-    return [True,ret]
+    return [True, ret]
 
 
 class MYSQLDataManipulator:
@@ -67,9 +68,9 @@ class MYSQLDataManipulator:
         @type database: String or None
         '''
         connectionStatus = connect(host, user, password, database)
-        if not connectionStatus[0]:
-            raise ConnectionError(connectionStatus[1]) 
         self.connection = connectionStatus[1]
+        if (type(self.connection) == type([])):
+            raise ConnectionError(self.connection)
         self.currentDatabase = database
         self.cursor = None
         
