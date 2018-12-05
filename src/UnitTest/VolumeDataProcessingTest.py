@@ -54,7 +54,6 @@ def genRealData():
 def checkListAssert(testCase : unittest.TestCase, list1, list2):
     '''Checks the number based list for almost equality (for floating point comparisons)
     '''
-    print(list1, list2)
     testCase.assertEqual(len(list1), len(list2))
     for i in range(len(list1)):
         testCase.assertAlmostEqual(list1[i], list2[i])
@@ -98,14 +97,10 @@ class VolumeDataProcessingTest(unittest.TestCase):
     def tearDownClass(cls):
         '''Does tear down of database
         '''
-        print("Tearing Down...")
         loginCredential = config_handling()
         dataMan = MYSQLDataManipulator(loginCredential[0], loginCredential[1], loginCredential[2], "testBase")
-        print("Created Manipulator")
         dataMan.execute_sql("drop schema testBase;")
-        print("Executed Database Removal SQL")
         dataMan.close()
-        print("Finished")
 
     def setUp(self):
         '''Sets up instance variables
