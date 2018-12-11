@@ -46,18 +46,19 @@ class ModelTrainingPipeline:
     # Removed for the time being. Until it is determined whether this is necessary.
     #===========================================================================
     
-    def __clusterStocksIntoTrainingGroups(self, primaryTicker, loginCredentials, trainingPosition):
+    #def __clusterStocksIntoTrainingGroups(self, primaryTicker, loginCredentials, trainingPosition):
         '''Clusters stocks into training groups
         @param primaryTicker: Stock to compare all other stocks against
         @param loginCredentials: Login Credentials for the stock data retrieval
         @param trainingPosition: Value passed through to ensure that asyncronous creation of training processes
         do not overwrite. Return as the last element of the return array
+        @param clusteringFunctionArgs: Arguments list passed directly to clustering function
         @return: [primaryTicker, [other tickers assigned based on similarity to primary], trainingPosition] or
         [trainingPosition] if ticker should not be trained
         
         This method is intended to be used by a multiprocess pool
         '''
-        pass
+    #    pass
     
     def __clusterCallback(self, resultsGiven):
         '''Adds returned tickers to a TrainingGroup object
@@ -124,7 +125,7 @@ class ModelTrainingPipeline:
             waitingList.remove(delList[i])
         return retList
     
-    def usePipeline(self, stockList, trainingFunction, trainingFunctionArgs, clusteringMethod = None):
+    def usePipeline(self, stockList, trainingFunction, trainingFunctionArgs, clusteringMethod, clusteringFunctionArgs):
         '''Handles clustering and use of training function for all tickers
         @param stockList: List of stock tickers to create models for
         @param trainingFunction: Function to be used for training models
@@ -164,9 +165,9 @@ class ModelTrainingPipeline:
         trainPos = 0
         for ticker in stockList:
             if not len(clusteringAsyncWaitingList) < clusteringPoolProcessCount:
-                clusteringAsyncWaitingList.append(self.clusteringPool.apply_async(func = clusteringMethod, args = (ticker, self.loginCredentials, trainPos), callback = self.__clusterCallback))
+                clusteringAsyncWaitingList.append(self.clusteringPool.apply_async(func = clusteringMethod, args = (ticker, self.loginCredentials, trainPos, clusteringFunctionArgs), callback = self.__clusterCallback))
             else:
-                self.__addToAsyncWaitingList(clusteringAsyncWaitingList, clusteringMethod, (ticker, self.loginCredentials, trainPos), self.__clusterCallback, self.clusteringPool, self.numClusteringProcesses)
+                self.__addToAsyncWaitingList(clusteringAsyncWaitingList, clusteringMethod, (ticker, self.loginCredentials, trainPos, clusteringFunctionArgs), self.__clusterCallback, self.clusteringPool, self.numClusteringProcesses)
             trainPos += 1
         
         while not len(clusteringAsyncWaitingList) == 0:
