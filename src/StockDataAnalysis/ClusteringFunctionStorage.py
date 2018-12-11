@@ -18,25 +18,28 @@ def setStartDate(startingDate : datetime):
     global startDate
     startDate = startingDate
 
-def movingAverageClustering(ticker : str, loginCredentials : List[str], trainingPosition : int, clusterFunctionArguments : List):
+def movingAverageClustering(ticker : str, loginCredentials : List[str], trainingPosition : int):
     '''Calculates the most similar stocks for the stock given by ticker using the moving average
     :param ticker: Stock ticker to calculate similarities for
     :param loginCredentials: Credentials to access
     :param trainingPosition: Pass through value
     :clusterFunctionArgumentsFormat:
-    [minimumSimilarity : float, maxNumberSimilarTickers : int, numDaysPerAverage : int, startDate : datetime] or
+    [minimumSimilarity : float, maxNumberSimilarTickers : int, numDaysPerAverage : int] or
+    [minimumSimilarity : float, maxNumberSimilarTickers : int]
 
     :return: [primaryTicker, [other tickers assigned based on similarity to primary], trainingPosition] or
         [trainingPosition] if ticker should not be trained
     '''
+    global startDate
+    global clusterFunctionArguments
 
     numDaysPerAverage = 14
 
+    if len(clusterFunctionArguments) == 3:
+        numDaysPerAverage = clusterFunctionArguments[2]
 
     minimumSimilarity = clusterFunctionArguments[0]
     maxNumSimilarTickers = clusterFunctionArguments[1]
-    numDaysPerAverage = clusterFunctionArguments[2]
-    startDate = clusterFunctionArguments[3]
 
     dataMan = DataProcessor(loginCredentials)
     dataStorage = dataMan.getRawData(["hist_date", "adj_close"], startDate)
