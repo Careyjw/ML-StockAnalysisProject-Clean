@@ -11,7 +11,6 @@ Into a usable format for machine learning training and clustering
 from DatabaseUtils.MySQLUtils import MYSQLDataManipulator, stockListTableColList, tableNameBaseString
 from StockDataDownloader.SharedUtilities import SourceDataStorage, TickerDataStorage
 from datetime import datetime as dt
-from typing import List
 
 LimitedNumericChangeSourceID = "LimitedNumericChangeCalculator"
 MovementDirectionSourceID = "MovementDirectionCalculator"
@@ -181,7 +180,7 @@ class DataProcessor:
         return ret
 
     
-    def getRawData(self, columnList, startDate=None, endDate=None) -> List["TickerDataStorage"]:
+    def getRawData(self, columnList, startDate=None, endDate=None) -> list:
         '''Obtains raw data for all tickers stored in the database
         @param columnList: List of database table columns to extract data from.
         @param startDate: Starting date of the period to calculate changes with.
