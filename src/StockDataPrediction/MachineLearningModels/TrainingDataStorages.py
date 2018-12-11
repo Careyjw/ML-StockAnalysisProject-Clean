@@ -16,10 +16,25 @@ class RNNTrainingDataStorage:
         self.y = []
         self.normalizationFunction = normalizationFunction
         self.deNormalizationFunction = deNormalizationFunction
+        self.predictionData = []
 
     def addTrainingExample(self, x : List[List], y : List):
         self.x.append(x)
         self.y.append(y)
+
+    def addPredictionData(self, x : List[List]):
+        self.predictionData = x
+
+    def extractPredictionData(self):
+        retData = []
+        for x in self.predictionData:
+            subArr = []
+            for y in x:
+                subArr.append(self.normalizationFunction(y))
+            retData.append(subArr)
+        return retData
+
+    
 
     def extractData(self):
         numpyX = np.zeros( ( len(self.x), len(self.x[0]), len(self.x[0][0]) ), dtype=np.int32 )

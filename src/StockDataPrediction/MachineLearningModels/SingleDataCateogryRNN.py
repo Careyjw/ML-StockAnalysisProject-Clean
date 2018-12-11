@@ -100,14 +100,15 @@ class RNNNormal:
                 L += -1 * np.sum(np.log(correct_word_predictions))
             return L
         
-        def predict (self, x : List[int]):
+        def predict (self, x : "RNNTrainingDataStorage"):
             '''Makes a prediction based off of the given training example
-            :param x: Normalized Data to make prediction from (Needs to be normalized prior to use)
-            :type x: List of Num
-            :return: Normalized returned value
+            :param x: Training Data Storage to get prediction data from
+            :return: Denormalized data
             '''
-            o,s,a = self.forward_prop([x])
-            return np.argmax(o, axis=1)[-1]
+            predData = x.extractPredictionData()
+
+            o,s,a = self.forward_prop(predData)
+            return x.deNormalizationFunction(np.argmax(o, axis=1)[-1])
             
         def __backPropogation (self, x, y):
             '''Performs forward and truncated backpropogation on the RNN
