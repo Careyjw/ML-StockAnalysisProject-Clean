@@ -48,7 +48,6 @@ def movingAverageClustering(ticker : str, loginCredentials : List[str], training
     differenceScores = []
     for otherTicker in otherTickerData:
         simScore = calculateMovingAveragePercentageSimilarity(mainTickerData.data, otherTicker.data, numDaysPerAverage)
-        print(simScore, otherTicker.ticker)
         if (simScore < 1):
             differenceScores.append( (simScore, otherTicker.ticker) )
     differenceScores = sorted(differenceScores, key= lambda var: var[0]) [:maxNumSimilarTickers]
