@@ -43,7 +43,7 @@ class EMessage:
         :return: EMessage instance with the modified body
         '''
         body = self.body.replace(text, "\n".join([text] * amnt))
-        return EMessage(body, self.identifier, self.subIdentifiers)
+        return EMessage(body, self.identifier, self.subject, self.subIdentifiers, self.defaultMessageStatus)
 
     def replaceKey(self, text : str, eMessage, amnt : int = 1) -> 'EMessage':
         '''Searches the body for text matching text, and replaces it with eMessage
@@ -59,7 +59,7 @@ class EMessage:
         elif (type(eMessage) == type(self)):
             body = self.body.replace(text, eMessage.body, amnt)
         
-        return EMessage(body, self.identifier, self.subIdentifiers)
+        return EMessage(body, self.identifier, self.subject, self.subIdentifiers, self.defaultMessageStatus)
 
     def addSubIdentifier(self, identifier : str):
         '''Adds the identifier to the current list of subIdentifiers
