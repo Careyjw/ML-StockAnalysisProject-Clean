@@ -7,7 +7,6 @@ Created on Nov 27, 2018
 from SharedGeneralUtils.SharedGeneralUtils import config_handling, get_stock_list
 from StockDataDownloader.DataDownloadSources import DownloadDataYahoo
 from DatabaseUtils.MySQLUtils import uploadData, MYSQLDataManipulator, createStockDatabase, clearDataFromStockListTable
-from EmailUtils.SimpleEmailSender import SimpleEmailSender
 
 
 if __name__ == '__main__':
