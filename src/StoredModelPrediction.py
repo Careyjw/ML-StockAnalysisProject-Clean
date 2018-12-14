@@ -2,27 +2,19 @@ from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
 
 from SharedGeneralUtils.SharedGeneralUtils import config_handling
+from SharedGeneralUtils.EMessageTemplates import devTickerPredEM
 
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import modelStoragePathBase, combineDataSets
 from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import RNNNormal
 from StockDataPrediction.MachineLearningModels.TrainingDataStorages import RNNTrainingDataStorage
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
 
-from EmailUtils.EMessage import EMessage
 from EmailUtils.EClient import EClient, EClientFilter
 from EmailUtils.EMessageSender import EMessageSender
 
 from os import listdir, path
 from typing import List
 from datetime import datetime, timedelta
-
-
-messageBody = '''Hello {customer},
-Here is your prediction results for today:
-{ticker}
-Have a nice day'''
-
-
 
 def parseModelString(passedStr : str):
     unScorePos = passedStr.find("_")
@@ -68,16 +60,14 @@ def genClients():
 
 
 if __name__ == "__main__":
-
     emailSys = EMessageSender("smtp.gmail.com", 465, "mlstockpredictions@gmail.com", "PrayersAndFaith")
 
-    msg = EMessage(messageBody, "tick", "Prediction Results", [], defaultMessageStatus= True)
     clients = genClients()
 
     loginCredentials = config_handling()
     modelFiles = getModelFiles()
     
-    msg = msg.multiplyKey("{ticker}", len(modelFiles))
+    msg = devTickerPredEM.multiplyKey("{ticker}", len(modelFiles))
 
     for x in modelFiles:
         modelTypeName, ticker, fileExtension = parseModelString(path.split(x)[1])
