@@ -3,6 +3,7 @@ from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
 
 from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling
 from SharedGeneralUtils.EMessageTemplates import devTickerPredEM
+from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
 
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import modelStoragePathBase, combineDataSets
 from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import RNNNormal
@@ -51,10 +52,8 @@ def genPredictionData(modelTypeName : str, ticker : str, loginCredentials, examp
 
 
 def genClients():
-    jimClient = EClient("Jim Carey", "careyjw@plu.edu", EClientFilter())
-    jimClient.clientFilter.addWhitelistEntry("tick", [])
-    coltonClient = EClient("Colton Freitas", "freitacr@plu.edu", EClientFilter())
-    coltonClient.clientFilter.addWhitelistEntry("tick", [])
+    jimClient = EClient("Jim Carey", "careyjw@plu.edu", devClientFilter)
+    coltonClient = EClient("Colton Freitas", "freitacr@plu.edu", devClientFilter)
     return [jimClient, coltonClient]
 
 
