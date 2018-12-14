@@ -10,6 +10,7 @@ from StockDataPrediction.ModelTrainingPipeline import ModelTrainingPipeline
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import trainVolumeRNNMovementDirections
 
 from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling, get_stock_list
+from SharedGeneralUtils.CommonValues import startDate
 
 from argparse import ArgumentParser
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
 
 
     pipeline = ModelTrainingPipeline(namespace.p, config_handling(), namespace.cp, namespace.tp)
-    startDate = datetime.now() - timedelta(365)
+
     clusterFunctionArgs = [namespace.e, namespace.m, namespace.de, startDate]
     trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de]
 

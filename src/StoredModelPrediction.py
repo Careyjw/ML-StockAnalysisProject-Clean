@@ -4,6 +4,7 @@ from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
 from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling
 from SharedGeneralUtils.EMessageTemplates import devTickerPredEM
 from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
+from SharedGeneralUtils.CommonValues import startDate
 
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import modelStoragePathBase, combineDataSets
 from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import RNNNormal
@@ -38,7 +39,6 @@ def loadModel(fileExtension, modelFilePath):
 def genPredictionData(modelTypeName : str, ticker : str, loginCredentials, examplesPerSet):
     trainingTickers = None
     if modelTypeName == "VolMovDir":
-        startDate = datetime.now() - timedelta(365)
         trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, [.60, 5, 15, startDate])
         trainingTickers = [trainingTickers[0]] + trainingTickers[1]
         
