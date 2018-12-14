@@ -4,7 +4,7 @@
 Trains models from volume data
 '''
 
-from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering, setClusterFunctionArgs, setStartDate, clusterFunctionArguments
+from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
 
 from StockDataPrediction.ModelTrainingPipeline import ModelTrainingPipeline
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import trainVolumeRNNMovementDirections
