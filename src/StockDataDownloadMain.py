@@ -4,7 +4,7 @@ Created on Nov 27, 2018
 @author: Colton Freitas
 '''
 
-from SharedGeneralUtils.SharedGeneralUtils import config_handling, get_stock_list
+from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling, get_stock_list
 from StockDataDownloader.DataDownloadSources import DownloadDataYahoo
 from DatabaseUtils.MySQLUtils import uploadData, MYSQLDataManipulator, createStockDatabase, clearDataFromStockListTable
 

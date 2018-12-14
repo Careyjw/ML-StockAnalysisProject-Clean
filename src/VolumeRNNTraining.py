@@ -7,7 +7,7 @@ Trains models from volume data
 from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering, setClusterFunctionArgs, setStartDate, clusterFunctionArguments
 from StockDataPrediction.ModelTrainingPipeline import ModelTrainingPipeline
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import trainVolumeRNNMovementDirections
-from SharedGeneralUtils.SharedGeneralUtils import config_handling
+from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling
 from os import cpu_count
 from datetime import datetime, timedelta
 

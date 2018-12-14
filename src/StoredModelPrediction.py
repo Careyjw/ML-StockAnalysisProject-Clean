@@ -1,7 +1,7 @@
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
 
-from SharedGeneralUtils.SharedGeneralUtils import config_handling
+from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling
 from SharedGeneralUtils.EMessageTemplates import devTickerPredEM
 
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import modelStoragePathBase, combineDataSets
