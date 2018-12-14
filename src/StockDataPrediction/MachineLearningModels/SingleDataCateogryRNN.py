@@ -10,7 +10,7 @@ Created on Jun 7, 2018
 @author: Colton Freitas
 '''
 
-class RNNNormal:
+class SingleDataCategoryRNN:
         
         def __init__ (self, hiddenStateSize, inputSize, numInputsPerStep, backPropTruncateAmount : int = 4, learning_rate : float = 0.01, evalLossAfter : int = 5):
             ''' Initializes the RNN

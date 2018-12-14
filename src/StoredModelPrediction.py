@@ -7,7 +7,7 @@ from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
 from SharedGeneralUtils.CommonValues import startDate
 
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import modelStoragePathBase, combineDataSets
-from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import RNNNormal
+from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN
 from StockDataPrediction.MachineLearningModels.TrainingDataStorages import RNNTrainingDataStorage
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
 
@@ -32,7 +32,7 @@ def getModelFiles() -> List[str]:
 
 def loadModel(fileExtension, modelFilePath):
     if fileExtension == 'scml':
-        rnn = RNNNormal(1, 1, 1, 1, .5, .5)
+        rnn = SingleDataCategoryRNN(1, 1, 1, 1, .5, .5)
         rnn.load(modelFilePath)
         return rnn
 

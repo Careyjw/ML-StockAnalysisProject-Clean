@@ -1,4 +1,4 @@
-from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import RNNNormal, RNNTrainingDataStorage
+from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN, RNNTrainingDataStorage
 from StockDataPrediction.ModelTrainingPipeline import TrainingGroup
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.DataProcessingUtils import DataProcessor
@@ -17,7 +17,7 @@ def parseParametersAndCreateRNN(trainingTickers : 'TrainingGroup', trainingFunct
     
     numTrainingEpochs = trainingFunctionArgs[2]
 
-    rnn = RNNNormal(hiddenStateSize, 3, len(otherTickers) + 1, backpropogationTruncationAmount, learningRate, evalLossAfter)
+    rnn = SingleDataCategoryRNN(hiddenStateSize, 3, len(otherTickers) + 1, backpropogationTruncationAmount, learningRate, evalLossAfter)
 
     trainTickers = otherTickers + [primaryTicker]
 
