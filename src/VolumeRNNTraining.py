@@ -9,7 +9,7 @@ from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering,
 from StockDataPrediction.ModelTrainingPipeline import ModelTrainingPipeline
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import trainVolumeRNNMovementDirections
 
-from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling
+from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling, get_stock_list
 
 from argparse import ArgumentParser
 
@@ -50,4 +50,4 @@ if __name__ == "__main__":
     trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de]
 
 
-    pipeline.usePipeline(["AAPL", "T"], trainVolumeRNNMovementDirections, trainingFunctionArgs, movingAverageClustering, clusterFunctionArgs)
+    pipeline.usePipeline(get_stock_list(), trainVolumeRNNMovementDirections, trainingFunctionArgs, movingAverageClustering, clusterFunctionArgs)
