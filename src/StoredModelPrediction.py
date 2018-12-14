@@ -32,8 +32,7 @@ def getModelFiles() -> List[str]:
 
 def loadModel(fileExtension, modelFilePath):
     if fileExtension == 'scml':
-        rnn = SingleDataCategoryRNN(1, 1, 1, 1, .5, .5)
-        rnn.load(modelFilePath)
+        rnn = SingleDataCategoryRNN.load(modelFilePath)
         return rnn
 
 def genPredictionData(modelTypeName : str, ticker : str, loginCredentials, examplesPerSet):
@@ -54,7 +53,8 @@ def genPredictionData(modelTypeName : str, ticker : str, loginCredentials, examp
 def genClients():
     jimClient = EClient("Jim Carey", "careyjw@plu.edu", devClientFilter)
     coltonClient = EClient("Colton Freitas", "freitacr@plu.edu", devClientFilter)
-    return [jimClient, coltonClient]
+    #return [jimClient, coltonClient]
+    return [coltonClient]
 
 
 
