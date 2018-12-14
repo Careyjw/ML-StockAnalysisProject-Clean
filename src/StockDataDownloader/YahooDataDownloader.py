@@ -7,9 +7,9 @@ Created on Nov 27, 2018
 Contains specialized methods to download stock data from Yahoo
 '''
 
-from .SharedUtilities import openURL
+from StockDataDownloader.SharedUtilities import openURL
 from datetime import datetime as dt
-from StockDataDownloader.SharedUtilities import TickerDataStorage
+from SharedGeneralUtils.SharedDataStorageClasses import TickerDataStorage
 
 crumbURL = 'https://finance.yahoo.com/quote/AAPL?p=AAPL'
 baseURL = 'https://query1.finance.yahoo.com/v7/finance/download/{0}?period1={1}&period2={2}&interval=1d&events=history&crumb={3}'

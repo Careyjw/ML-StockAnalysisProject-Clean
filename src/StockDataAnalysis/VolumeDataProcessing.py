@@ -1,5 +1,5 @@
 from StockDataAnalysis.DataProcessingUtils import DataProcessor, calculatePercentageChange, PercentageChangesSourceID, LimitedNumericChangeSourceID, MovementDirectionSourceID
-from StockDataDownloader.SharedUtilities import TickerDataStorage, SourceDataStorage
+from SharedGeneralUtils.SharedDataStorageClasses import TickerDataStorage, SourceDataStorage
 
 def calcSign(x):
     '''Returns the sign of x
