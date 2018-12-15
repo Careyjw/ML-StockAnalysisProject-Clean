@@ -18,6 +18,8 @@ from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
 
 from SharedGeneralUtils.CommonValues import configurationFileLocation, stockTickerFileLocation
 
+from os import path
+
 def genClients():
     '''Generates a quick list of clients to send data to.
     :status: temporary, will need to be replaced
