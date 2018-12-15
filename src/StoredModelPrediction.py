@@ -5,10 +5,15 @@ from SharedGeneralUtils.EMessageTemplates import devTickerPredEM
 
 from EmailUtils.EMessageSender import EMessageSender
 
-from os import path
+from argparse import ArgumentParser
 
 if __name__ == "__main__":
-    emailSys = EMessageSender("smtp.gmail.com", 465, "mlstockpredictions@gmail.com", "PrayersAndFaith")
+    argParser = ArgumentParser(description="Loads currently trained models and uses them to make a prediction for the following day")
+
+    argParser.add_argument('-password', dest = "p", type = str, help="Password for the email sending system", required=True)
+    namespace = argParser.parse_args()
+
+    emailSys = EMessageSender("smtp.gmail.com", 465, "mlstockpredictions@gmail.com", namespace.p)
 
     clients = genClients()
 
