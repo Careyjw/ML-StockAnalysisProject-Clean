@@ -3,9 +3,10 @@ from StockDataPrediction.ModelTrainingPipeline import TrainingGroup
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.DataProcessingUtils import DataProcessor
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
+from SharedGeneralUtils.CommonValues import modelStoragePathBase
 from typing import List
 
-modelStoragePathBase = "../model_storage/{0}"
+
 
 def parseParametersAndCreateRNN(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List):
     primaryTicker = trainingTickers.primaryTicker
