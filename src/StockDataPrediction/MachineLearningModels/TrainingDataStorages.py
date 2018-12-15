@@ -19,13 +19,19 @@ class RNNTrainingDataStorage:
         self.predictionData = []
 
     def addTrainingExample(self, x : List[List], y : List):
+        '''Adds the training example to the storage
+        '''
         self.x.append(x)
         self.y.append(y)
 
     def addPredictionData(self, x : List[List]):
+        '''Sets the prediction data to the supplied list
+        '''
         self.predictionData = x
 
     def extractPredictionData(self):
+        '''Extracts Prediction Data from storage, applying the normalization function before returning
+        '''
         retData = []
         for x in self.predictionData:
             subArr = []
@@ -34,9 +40,9 @@ class RNNTrainingDataStorage:
             retData.append(subArr)
         return retData
 
-    
-
     def extractData(self):
+        '''Exracts Training Data from storage, applying the normalization function before returning
+        '''
         numpyX = np.zeros( ( len(self.x), len(self.x[0]), len(self.x[0][0]) ), dtype=np.int32 )
         numpyY = np.zeros( ( len(self.y), len(self.y[0]) ), dtype=np.int32 )
         for i in range(len(self.x)):
@@ -50,4 +56,6 @@ class RNNTrainingDataStorage:
 
 
 def transformArray(arr, function):
+    '''Applies the function to all values in the array
+    '''
     return [function(x) for x in arr]
