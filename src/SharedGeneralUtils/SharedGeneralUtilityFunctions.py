@@ -1,7 +1,73 @@
 from configparser import ConfigParser, NoSectionError, NoOptionError
+from os import listdir
+from typing import List
 
-stockTickerFileLocation = "../configuration_data/stock_list.txt"
-configurationFileLocation = "../configuration_data/config.ini"
+from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
+from SharedGeneralUtils.CommonValues import startDate
+
+from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import combineDataSets
+from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import modelStoragePathBase
+from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN
+from StockDataPrediction.MachineLearningModels.TrainingDataStorages import RNNTrainingDataStorage
+from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
+
+from EmailUtils.EClient import EClient, EClientFilter
+
+from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
+from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
+
+from SharedGeneralUtils.CommonValues import configurationFileLocation, stockTickerFileLocation
+
+def genClients():
+    '''Generates a quick list of clients to send data to.
+    :status: temporary, will need to be replaced
+    '''
+    jimClient = EClient("Jim Carey", "careyjw@plu.edu", devClientFilter)
+    coltonClient = EClient("Colton Freitas", "freitacr@plu.edu", devClientFilter)
+    #return [jimClient, coltonClient]
+    return [coltonClient]
+
+def loadModel(fileExtension, modelFilePath):
+    '''Loads model file from path
+    '''
+    if fileExtension == 'scml':
+        rnn = SingleDataCategoryRNN.load(modelFilePath)
+        return rnn
+
+def genPredictionData(modelTypeName : str, ticker : str, loginCredentials : List[str], examplesPerSet : int):
+    '''Generates prediction data based on the type of model loaded
+    '''
+    trainingTickers = None
+    if modelTypeName == "VolMovDir":
+        trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, [.60, 5, 15, startDate])
+        trainingTickers = [trainingTickers[0]] + trainingTickers[1]
+        
+        dataProc = VolumeDataProcessor(loginCredentials)
+        sourceStorages = dataProc.calculateMovementDirections(startDate)
+        dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainingTickers]
+        dataStorage = combineDataSets(dataStorage)
+        predictionDataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
+        predictionDataStorage.addPredictionData(dataStorage[-examplesPerSet:])
+        return predictionDataStorage
+
+def getModelFiles() -> List[str]:
+    '''Returns a list of model files in the modelStoragePathBase directory
+    Does not return sub directories
+    '''
+    fileList = listdir(modelStoragePathBase.format('.'))
+    return [modelStoragePathBase.format(x) for x in fileList if not path.isdir(x)]
+
+def parseModelString(passedStr : str):
+    '''Parses model filename string
+    Assumes string is in format:
+    "modelTypeName_ticker.extension"
+    '''
+    unScorePos = passedStr.find("_")
+    periodPos = passedStr.find(".")
+    modelTypeName = passedStr[:unScorePos]
+    ticker = passedStr[unScorePos+1:periodPos]
+    extension = passedStr[periodPos+1:]
+    return [modelTypeName, ticker, extension]
 
 def write_default_configs(parser, file_position):
     '''Creates the default configuration file in file_position with default values
