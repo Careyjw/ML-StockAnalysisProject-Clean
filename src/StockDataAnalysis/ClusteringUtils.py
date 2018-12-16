@@ -55,7 +55,7 @@ def calculateMovingAveragePercentageSimilarity(ticker1Data : List[ List["datetim
     #They will have different amounts of data...
     #And therefore cannot be used with each other
     if not ticker1StartDate == ticker2StartDate or not len(ticker1Data) == len(ticker2Data):
-        return 0
+        return 100
 
     ticker1MovingAverage = calculateMovingAverageForPeriod( [x[1] for x in ticker1Data], numDaysPerAverage )
     ticker2MovingAverage = calculateMovingAverageForPeriod( [x[1] for x in ticker2Data], numDaysPerAverage )
