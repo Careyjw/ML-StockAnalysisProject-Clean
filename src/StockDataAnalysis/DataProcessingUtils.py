@@ -10,11 +10,11 @@ Into a usable format for machine learning training and clustering
 '''
 from DatabaseUtils.MySQLUtils import MYSQLDataManipulator, stockListTableColList, tableNameBaseString
 from SharedGeneralUtils.SharedDataStorageClasses import SourceDataStorage, TickerDataStorage
+from SharedGeneralUtils.CommonValues import PercentageChangesSourceID, LimitedNumericChangeSourceID, MovementDirectionSourceID
+
 from datetime import datetime as dt
 
-LimitedNumericChangeSourceID = "LimitedNumericChangeCalculator"
-MovementDirectionSourceID = "MovementDirectionCalculator"
-PercentageChangesSourceID = "PercentageChangesCalculator"
+
 
 class DataProcessor:
     
