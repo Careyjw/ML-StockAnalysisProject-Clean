@@ -5,8 +5,8 @@ from typing import List
 from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
 from SharedGeneralUtils.CommonValues import startDate
 
-from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import combineDataSets
-from SharedGeneralUtils.CommonValues import modelStoragePathBase, VolumeMovementDirectionsSegmentedID
+from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import combineDataSets, genTargetExampleSets, genTrainingExampleSets
+from SharedGeneralUtils.CommonValues import modelStoragePathBase, VolumeMovementDirectionsSegmentedID, evalStartDate
 from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN
 from StockDataPrediction.MachineLearningModels.TrainingDataStorages import RNNTrainingDataStorage
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
@@ -14,6 +14,7 @@ from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDe
 from EmailUtils.EClient import EClient, EClientFilter
 
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
+from StockDataAnalysis.DataProcessingUtils import DataProcessor
 from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
 
 from SharedGeneralUtils.CommonValues import configurationFileLocation, stockTickerFileLocation
@@ -32,32 +33,64 @@ def genClients():
 def loadModel(fileExtension, modelFilePath):
     '''Loads model file from path
     '''
+    #print(fileExtension)
     if fileExtension == 'scml':
         rnn = SingleDataCategoryRNN.load(modelFilePath)
+        #print(rnn)
         return rnn
 
-def genPredictionData(modelTypeName : str, ticker : str, loginCredentials : List[str], examplesPerSet : int):
+def genPredictionData(modelTypeName : str, ticker : str, loginCredentials : List[str], examplesPerSet : int, clusteringFunctionArgs : List):
     '''Generates prediction data based on the type of model loaded
     '''
     trainingTickers = None
     if modelTypeName == VolumeMovementDirectionsSegmentedID:
-        trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, [.60, 5, 15, startDate])
+        trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, clusteringFunctionArgs)
         trainingTickers = [trainingTickers[0]] + trainingTickers[1]
         
         dataProc = VolumeDataProcessor(loginCredentials)
-        sourceStorages = dataProc.calculateMovementDirections(startDate)
+        sourceStorages = dataProc.calculateMovementDirections(clusteringFunctionArgs[-1])
         dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainingTickers]
         dataStorage = combineDataSets(dataStorage)
         predictionDataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
         predictionDataStorage.addPredictionData(dataStorage[-examplesPerSet:])
         return predictionDataStorage
 
-def getModelFiles() -> List[str]:
-    '''Returns a list of model files in the modelStoragePathBase directory
+def genEvalData(modelTypeName : str, ticker : str, loginCredentials : List[str], examplesPerSet : int, clusteringFunctionArgs : List):
+    '''Generates evaluation data for the given ticker and model type
+    '''
+    trainingTickers = None
+    evalClusterArgs = clusteringFunctionArgs[:]
+    evalClusterArgs[-1] = evalStartDate
+    if modelTypeName == VolumeMovementDirectionsSegmentedID:
+        trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, evalClusterArgs)
+        trainingTickers = [trainingTickers[0]] + trainingTickers[1]
+
+        dataProc = VolumeDataProcessor(loginCredentials)
+        closeDataProc = DataProcessor(loginCredentials)
+        sourceStorages = dataProc.calculateMovementDirections(clusteringFunctionArgs[-1])
+        dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainingTickers]
+        dataStorage = combineDataSets(dataStorage)
+        predData = genTrainingExampleSets(dataStorage, examplesPerSet)
+    
+        sourceStorages = closeDataProc.calculateMovementDirections("adj_close", clusteringFunctionArgs[-1])
+        dataStorage = [x.data for x in sourceStorages.tickers if x.ticker == ticker][0]
+        adj_closeTargetData = [x[1] for x in dataStorage]
+        adj_closeTargetData = genTargetExampleSets(adj_closeTargetData, examplesPerSet)
+        adj_closeTargetData = [[x[-1]] for x in adj_closeTargetData]
+        dataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
+        
+        dataProc.close()
+        closeDataProc.close()
+
+        return [predData, adj_closeTargetData, dataStorage]
+
+
+def getModelFiles(pathBase : str) -> List[str]:
+    '''Returns a list of model files in the pathBase directory
     Does not return sub directories
     '''
-    fileList = listdir(modelStoragePathBase.format('.'))
-    return [modelStoragePathBase.format(x) for x in fileList if not path.isdir(x)]
+    fileList = listdir(pathBase.format('.'))
+    return [pathBase.format(x) for x in fileList if not path.isdir(pathBase.format(x))]
 
 def parseModelString(passedStr : str):
     '''Parses model filename string
@@ -70,6 +103,20 @@ def parseModelString(passedStr : str):
     ticker = passedStr[unScorePos+1:periodPos]
     extension = passedStr[periodPos+1:]
     return [modelTypeName, ticker, extension]
+
+def parseEvalModelString(passedStr : str) -> List[str]:
+    '''Parses eval model filename string
+    Assumes string is in the format:
+    "modelTypeName_ticker-epochsTrained.extension"
+    '''
+    unScorePos = passedStr.find("_")
+    periodPos = passedStr.find(".")
+    dashPos = passedStr.find("-")
+    modelTypeName = passedStr[:unScorePos]
+    ticker = passedStr[unScorePos+1:dashPos]
+    epochsTrained = passedStr[dashPos+1:periodPos]
+    extension = passedStr[periodPos+1:]
+    return [modelTypeName, ticker, epochsTrained, extension]
 
 def write_default_configs(parser, file_position):
     '''Creates the default configuration file in file_position with default values

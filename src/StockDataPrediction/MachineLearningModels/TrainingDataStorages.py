@@ -27,17 +27,19 @@ class RNNTrainingDataStorage:
     def addPredictionData(self, x : List[List]):
         '''Sets the prediction data to the supplied list
         '''
-        self.predictionData = x
+        self.predictionData.append(x)
 
     def extractPredictionData(self):
         '''Extracts Prediction Data from storage, applying the normalization function before returning
         '''
         retData = []
-        for x in self.predictionData:
+        predData = self.predictionData[0]
+        for x in predData:
             subArr = []
             for y in x:
                 subArr.append(self.normalizationFunction(y))
             retData.append(subArr)
+        self.predictionData = self.predictionData[1:]
         return retData
 
     def extractData(self):
