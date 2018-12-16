@@ -3,7 +3,7 @@ from StockDataPrediction.ModelTrainingPipeline import TrainingGroup
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.DataProcessingUtils import DataProcessor
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
-from SharedGeneralUtils.CommonValues import modelStoragePathBase
+from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase, VolumeMovementDirectionsSegmentedID
 from typing import List
 
 def parseParametersAndCreateSDCRNN(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List):
@@ -25,7 +25,9 @@ def parseParametersAndCreateSDCRNN(trainingTickers : 'TrainingGroup', trainingFu
 
     examplesPerSet = trainingFunctionArgs[3]
 
-    return [rnn, trainTickers, startingDataDate, numTrainingEpochs, examplesPerSet]
+    evalMode = trainingFunctionArgs[4]
+
+    return [rnn, trainTickers, startingDataDate, numTrainingEpochs, examplesPerSet, evalMode]
 
 def combineDataSets(dataSets : List[List[List]]):
     '''Combines data sets together
@@ -76,10 +78,10 @@ def genTrainingExampleSets(trainDataSet : List[List], examplesPerSet : int):
 def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List, loginCredentials : List[str]):
     '''Trains RNN models using volumetric data
     :trainingFunctionArgs format:
-    [startDate : datetime, (hiddenStateSize : int, backpropogationTruncationAmount : int, learningRate : float, evalLossAfter : int), numTrainingEpochs : int, examplesPerSet : int]
+    [startDate : datetime, (hiddenStateSize : int, backpropogationTruncationAmount : int, learningRate : float, evalLossAfter : int), numTrainingEpochs : int, examplesPerSet : int, evalMode : bool]
     '''
 
-    rnn, trainTickers, startDate, numEpochs, examplesPerSet = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
+    rnn, trainTickers, startDate, numEpochs, examplesPerSet, evalMode = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
 
     dataProc = VolumeDataProcessor(loginCredentials)
     closeDataProc = DataProcessor(loginCredentials)
@@ -102,8 +104,13 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
         trainingDataStorage.addTrainingExample(trainingData[i], adj_closeTargetData[i])
 
     rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
-    rnn.store(modelStoragePathBase.format(
-        "VolMovDir_{0}.scml".format(trainingTickers.primaryTicker)
-    ))
+    if evalMode:
+        rnn.store(evaluationModelStoragePathBase.format(
+            "{2}_{0}:{1}.scml".format(trainingTickers.primaryTicker, numEpochs, VolumeMovementDirectionsSegmentedID)
+        ))
+    else:
+        rnn.store(modelStoragePathBase.format(
+            "{1}_{0}.scml".format(trainingTickers.primaryTicker, VolumeMovementDirectionsSegmentedID)
+        ))
     dataProc.close()
     closeDataProc.close()

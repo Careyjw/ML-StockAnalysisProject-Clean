@@ -6,7 +6,7 @@ from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
 from SharedGeneralUtils.CommonValues import startDate
 
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import combineDataSets
-from SharedGeneralUtils.CommonValues import modelStoragePathBase
+from SharedGeneralUtils.CommonValues import modelStoragePathBase, VolumeMovementDirectionsSegmentedID
 from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN
 from StockDataPrediction.MachineLearningModels.TrainingDataStorages import RNNTrainingDataStorage
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
@@ -40,7 +40,7 @@ def genPredictionData(modelTypeName : str, ticker : str, loginCredentials : List
     '''Generates prediction data based on the type of model loaded
     '''
     trainingTickers = None
-    if modelTypeName == "VolMovDir":
+    if modelTypeName == VolumeMovementDirectionsSegmentedID:
         trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, [.60, 5, 15, startDate])
         trainingTickers = [trainingTickers[0]] + trainingTickers[1]
         
