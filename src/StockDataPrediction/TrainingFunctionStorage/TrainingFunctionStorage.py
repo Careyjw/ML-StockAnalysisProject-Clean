@@ -106,7 +106,7 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
     rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
     if evalMode:
         rnn.store(evaluationModelStoragePathBase.format(
-            "{2}_{0}:{1}.scml".format(trainingTickers.primaryTicker, numEpochs, VolumeMovementDirectionsSegmentedID)
+            "{2}_{0}-{1}.scml".format(trainingTickers.primaryTicker, numEpochs, VolumeMovementDirectionsSegmentedID)
         ))
     else:
         rnn.store(modelStoragePathBase.format(
