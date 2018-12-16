@@ -5,6 +5,8 @@ from SharedGeneralUtils.EMessageTemplates import devTickerPredEM
 
 from EmailUtils.EMessageSender import EMessageSender
 
+from os import path
+
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
