@@ -4,6 +4,7 @@ from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.DataProcessingUtils import DataProcessor
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
 from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase, VolumeMovementDirectionsSegmentedID
+from SharedGeneralUtils.CommonValues import startDate as defaultStartingDate
 from typing import List
 
 def parseParametersAndCreateSDCRNN(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List):
@@ -83,16 +84,20 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
 
     rnn, trainTickers, startDate, numEpochs, examplesPerSet, evalMode = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
 
+    endDate = None
+    if not startDate == defaultStartingDate:
+        endDate = defaultStartingDate
+
     dataProc = VolumeDataProcessor(loginCredentials)
     closeDataProc = DataProcessor(loginCredentials)
 
-    sourceStorages = dataProc.calculateMovementDirections(startDate)
+    sourceStorages = dataProc.calculateMovementDirections(startDate, endDate=endDate)
     
     dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainTickers]
     
     preExemplifiedTrainingData = combineDataSets(dataStorage)
 
-    sourceStorages = closeDataProc.calculateMovementDirections("adj_close", startDate)
+    sourceStorages = closeDataProc.calculateMovementDirections("adj_close", startDate, endDate=endDate)
     dataStorage = [x.data for x in sourceStorages.tickers if x.ticker == trainingTickers.primaryTicker][0]
     adj_closeTargetData = [x[1] for x in dataStorage]
 
