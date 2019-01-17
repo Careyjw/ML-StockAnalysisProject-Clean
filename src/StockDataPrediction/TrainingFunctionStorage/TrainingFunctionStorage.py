@@ -126,7 +126,7 @@ def trainCloseRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingF
     [startDate : datetime, (hiddenStateSize : int, backpropogationTruncationAmount : int, learningRate : float, evalLossAfter : int), numTrainingEpochs : int, examplesPerSet : int]
     '''
 
-    rnn, trainTickers, startDate, numEpochs, examplesPerSet = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
+    rnn, trainTickers, startDate, numEpochs, examplesPerSet, evalMode = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
 
     
     dataProc = DataProcessor(loginCredentials)
