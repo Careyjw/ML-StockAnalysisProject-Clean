@@ -54,7 +54,6 @@ class SingleDataCategoryRNN:
                 #setup transformation for unexpanded x vector into a series of one-hot vectors
                 transformed_x = np.zeros((self.numInputsPerStep, self.inputSize))
                 for i in range(len(x[time_step])):
-
                     transformed_x[i][x[time_step][i]] = 1
                 
                 #Average the inputs
