@@ -1,13 +1,15 @@
-from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import RNNNormal, RNNTrainingDataStorage
+from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN, RNNTrainingDataStorage
 from StockDataPrediction.ModelTrainingPipeline import TrainingGroup
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.DataProcessingUtils import DataProcessor
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
+from SharedGeneralUtils.CommonValues import modelStoragePathBase
 from typing import List
 
-modelStoragePathBase = "../model_storage/{0}"
-
-def parseParametersAndCreateRNN(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List):
+def parseParametersAndCreateSDCRNN(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List):
+    '''Parses trainingFunctionArgs and creates an instance of SingleDataCategoryRNN
+    Returns rnn instance and parameters not used in rnn creation
+    '''
     primaryTicker = trainingTickers.primaryTicker
     otherTickers = trainingTickers.trainingTickers
     
@@ -17,7 +19,7 @@ def parseParametersAndCreateRNN(trainingTickers : 'TrainingGroup', trainingFunct
     
     numTrainingEpochs = trainingFunctionArgs[2]
 
-    rnn = RNNNormal(hiddenStateSize, 3, len(otherTickers) + 1, backpropogationTruncationAmount, learningRate, evalLossAfter)
+    rnn = SingleDataCategoryRNN(hiddenStateSize, 3, len(otherTickers) + 1, backpropogationTruncationAmount, learningRate, evalLossAfter)
 
     trainTickers = otherTickers + [primaryTicker]
 
@@ -25,7 +27,14 @@ def parseParametersAndCreateRNN(trainingTickers : 'TrainingGroup', trainingFunct
 
     return [rnn, trainTickers, startingDataDate, numTrainingEpochs, examplesPerSet]
 
-def combineDataSets(dataSets : List[List]):
+def combineDataSets(dataSets : List[List[List]]):
+    '''Combines data sets together
+    dataSets format:
+        List of dataSets containing data in the following format:
+            [hist_date, data]
+    Removes dates and combines the data in the following way
+    retData = [[data0[0], data1[0] ... dataN[0]] ... ]
+    '''
     nonDatedData = []
     for dataSet in dataSets:
         nonDatedData.append( [x[1] for x in dataSet] )
@@ -40,7 +49,11 @@ def combineDataSets(dataSets : List[List]):
 
     return retData
 
-def genTargetExamples(targetDataSet : List, examplesPerSet : int):
+def genTargetExampleSets(targetDataSet : List, examplesPerSet : int):
+    '''Generate a list of target data example sets
+    Each set will contain examplesPerSet number of data from the data set
+    Each set overlaps examplesPerSet-1 number of data values
+    '''
     retlist = []
     numExamplesGenerated = len(targetDataSet) - examplesPerSet
     for i in range(numExamplesGenerated):
@@ -48,7 +61,11 @@ def genTargetExamples(targetDataSet : List, examplesPerSet : int):
         retlist.append( targetDataSet[ shiftedIndex:shiftedIndex + examplesPerSet ] )
     return retlist
 
-def genTrainExamples(trainDataSet : List[List], examplesPerSet : int):
+def genTrainingExampleSets(trainDataSet : List[List], examplesPerSet : int):
+    '''Generate a list of training data example sets
+    Each set will contain examplesPerSet number of data from the data set
+    Each set overlaps examplesPerSet-1 number of data values
+    '''
     retlist = []
     numExamplesGenerated = len(trainDataSet) - examplesPerSet
     for i in range(numExamplesGenerated):
@@ -62,7 +79,7 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
     [startDate : datetime, (hiddenStateSize : int, backpropogationTruncationAmount : int, learningRate : float, evalLossAfter : int), numTrainingEpochs : int, examplesPerSet : int]
     '''
 
-    rnn, trainTickers, startDate, numEpochs, examplesPerSet = parseParametersAndCreateRNN(trainingTickers, trainingFunctionArgs)
+    rnn, trainTickers, startDate, numEpochs, examplesPerSet = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
 
     dataProc = VolumeDataProcessor(loginCredentials)
     closeDataProc = DataProcessor(loginCredentials)
@@ -77,8 +94,8 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
     dataStorage = [x.data for x in sourceStorages.tickers if x.ticker == trainingTickers.primaryTicker][0]
     adj_closeTargetData = [x[1] for x in dataStorage]
 
-    adj_closeTargetData = genTargetExamples(adj_closeTargetData, examplesPerSet)
-    trainingData = genTrainExamples(preExemplifiedTrainingData, examplesPerSet)
+    adj_closeTargetData = genTargetExampleSets(adj_closeTargetData, examplesPerSet)
+    trainingData = genTrainingExampleSets(preExemplifiedTrainingData, examplesPerSet)
 
     trainingDataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
     for i in range(len(trainingData)):
@@ -87,6 +104,41 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
     rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
     rnn.store(modelStoragePathBase.format(
         "VolMovDir_{0}.scml".format(trainingTickers.primaryTicker)
+    ))
+    dataProc.close()
+    closeDataProc.close()
+
+def trainCloseRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List, loginCredentials : List[str]):
+    '''Trains RNN models using Adjusted Close data
+    :trainingFunctionArgs format:
+    [startDate : datetime, (hiddenStateSize : int, backpropogationTruncationAmount : int, learningRate : float, evalLossAfter : int), numTrainingEpochs : int, examplesPerSet : int]
+    '''
+
+    rnn, trainTickers, startDate, numEpochs, examplesPerSet = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
+
+    
+    dataProc = DataProcessor(loginCredentials)
+
+    sourceStorages = dataProc.calculateMovementDirections("adj_close", startDate)
+    
+    dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainTickers]
+    
+    preExemplifiedTrainingData = combineDataSets(dataStorage)
+
+    sourceStorages = dataProc.calculateMovementDirections("adj_close", startDate)
+    dataStorage = [x.data for x in sourceStorages.tickers if x.ticker == trainingTickers.primaryTicker][0]
+    adj_closeTargetData = [x[1] for x in dataStorage]
+
+    adj_closeTargetData = genTargetExampleSets(adj_closeTargetData, examplesPerSet)
+    trainingData = genTrainingExampleSets(preExemplifiedTrainingData, examplesPerSet)
+
+    trainingDataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
+    for i in range(len(trainingData)):
+        trainingDataStorage.addTrainingExample(trainingData[i], adj_closeTargetData[i])
+
+    rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
+    rnn.store(modelStoragePathBase.format(
+        "CloMovDir_{0}.scml".format(trainingTickers.primaryTicker)
     ))
     dataProc.close()
     closeDataProc.close()
