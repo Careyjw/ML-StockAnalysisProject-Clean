@@ -10,7 +10,7 @@ Created on Jun 7, 2018
 @author: Colton Freitas
 '''
 
-class RNNNormal:
+class SingleDataCategoryRNN:
         
         def __init__ (self, hiddenStateSize, inputSize, numInputsPerStep, backPropTruncateAmount : int = 4, learning_rate : float = 0.01, evalLossAfter : int = 5):
             ''' Initializes the RNN
@@ -208,20 +208,27 @@ class RNNNormal:
             
             open_file.close()
         
-        def load(self, filePath):
+        @classmethod
+        def load(cls, filePath):
             open_file = open(filePath, "r")
 
-            self.learning_rate = float( open_file.readline() )
-            self.hiddenStateSize = int( open_file.readline() )
-            self.inputSize = int( open_file.readline() )
-            self.numInputsPerStep = int( open_file.readline() )
+            learning_rate = float( open_file.readline() )
+            hiddenStateSize = int( open_file.readline() )
+            inputSize = int( open_file.readline() )
+            numInputsPerStep = int( open_file.readline() )
             
-            self.U = (self.__loadMatrix(open_file))
-            self.W = (self.__loadMatrix(open_file))
-            self.V = (self.__loadMatrix(open_file))
-            self.inputWeights = (self.__loadMatrix(open_file))
+            U = (cls.__loadMatrix(open_file))
+            W = (cls.__loadMatrix(open_file))
+            V = (cls.__loadMatrix(open_file))
+            inputWeights = (cls.__loadMatrix(open_file))
             
             open_file.close()
+            rnn = SingleDataCategoryRNN(hiddenStateSize, inputSize, numInputsPerStep, learning_rate=learning_rate)
+            rnn.U = U
+            rnn.W = W
+            rnn.V = V
+            rnn.inputWeights = inputWeights
+            return rnn
         
         def __storeMatrix(self, mat, file_handle):
             '''Stores the matrix specified by mat in the file specified by file_handle
@@ -240,7 +247,8 @@ class RNNNormal:
                 format_string += "\n"
                 file_handle.write(format_string % tuple([x for x in row]))
         
-        def __loadMatrix(self, file_handle):
+        @classmethod
+        def __loadMatrix(cls, file_handle):
             '''Loads a matrix from the file specified by file_handle and returns it
             :param file_handle: open file handle to read the matrix from
             :return: Numpy matrix containing the rectangular, two dimensional matrix read from file_handle

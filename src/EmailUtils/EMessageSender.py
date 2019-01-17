@@ -14,7 +14,6 @@ class EMessageSender:
             self.smtpServer = slib.SMTP_SSL(host=host, port=port)
             self.smtpServer.login(username, password)
             self.username = username
-            pass
         
         def sendMessage(self, message : "EMessage", client : "EClient"):
             '''Sends the message to the client

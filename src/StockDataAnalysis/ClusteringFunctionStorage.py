@@ -3,21 +3,6 @@ from StockDataAnalysis.DataProcessingUtils import DataProcessor
 from StockDataAnalysis.ClusteringUtils import calculateMovingAveragePercentageSimilarity
 from datetime import datetime
 
-startDate : datetime = None
-clusterFunctionArguments = None
-
-def setClusterFunctionArgs(clusterFunctionArgs : List):
-    '''Sets cluster function args for all clustering methods
-    '''
-    global clusterFunctionArguments
-    clusterFunctionArguments = clusterFunctionArgs
-
-def setStartDate(startingDate : datetime):
-    '''Sets starting date for all clustering methods
-    '''
-    global startDate
-    startDate = startingDate
-
 def movingAverageClustering(ticker : str, loginCredentials : List[str], trainingPosition : int, clusterFunctionArguments : List):
     '''Calculates the most similar stocks for the stock given by ticker using the moving average
     :param ticker: Stock ticker to calculate similarities for
