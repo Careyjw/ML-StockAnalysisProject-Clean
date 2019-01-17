@@ -88,6 +88,9 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
     if not startDate == defaultStartingDate:
         endDate = defaultStartingDate
 
+    print(defaultStartingDate, startDate)
+    #print(startDate, endDate)
+
     dataProc = VolumeDataProcessor(loginCredentials)
     closeDataProc = DataProcessor(loginCredentials)
 
@@ -126,7 +129,7 @@ def trainCloseRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingF
     [startDate : datetime, (hiddenStateSize : int, backpropogationTruncationAmount : int, learningRate : float, evalLossAfter : int), numTrainingEpochs : int, examplesPerSet : int]
     '''
 
-    rnn, trainTickers, startDate, numEpochs, examplesPerSet = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
+    rnn, trainTickers, startDate, numEpochs, examplesPerSet, evalMode = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs)
 
     
     dataProc = DataProcessor(loginCredentials)

@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
-startDate = datetime.now() - timedelta(365)
+startDate = date.fromtimestamp( (datetime.now() - timedelta(365)).timestamp())
 evalStartDate = startDate - timedelta(365)
 
 stockTickerFileLocation = "../configuration_data/stock_list.txt"
