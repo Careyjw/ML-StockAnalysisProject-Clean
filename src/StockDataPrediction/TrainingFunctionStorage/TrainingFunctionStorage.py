@@ -141,4 +141,3 @@ def trainCloseRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingF
         "CloMovDir_{0}.scml".format(trainingTickers.primaryTicker)
     ))
     dataProc.close()
-    closeDataProc.close()
