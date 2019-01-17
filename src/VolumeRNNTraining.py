@@ -22,13 +22,13 @@ from datetime import datetime, timedelta
 if __name__ == "__main__":
 
     argParser = ArgumentParser(description="Module for training Recurrent Neural Networks on Volumetric data to predict stock price movements")
-    argParser.add_argument('-max_processes', dest="p", type=int, nargs=1, help="The maximum number of processes this script is allowed to create.", default=cpu_count())
+    argParser.add_argument('-max_processes', dest="p", type=int, help="The maximum number of processes this script is allowed to create.", default=cpu_count())
     argParser.add_argument('-clustering_processes', dest = "cp", type = int, help = "The number of processes to dedicate to training models", default = -1)
     argParser.add_argument('-training_processes', dest = "tp", type = int, help = "The number of processes to dedicate to clustering similar stocks", default = -1)
     
-    argParser.add_argument('-max_training_tickers', dest="m", type=int, nargs=1, help="The maximum number of other (similar) stocks that will be used to make the model more accurate.", default=4)
-    argParser.add_argument('-min_similarity', dest="e", type=float, nargs=1, help="The minimum amount of similarity required for a stock to be eligible as a part of the training set.", default = .6)
-    argParser.add_argument('-num_days_per_example', dest = "de", type=int, nargs = 1, help="The number of days to use for one training example", default = 14)
+    argParser.add_argument('-max_training_tickers', dest="m", type=int, help="The maximum number of other (similar) stocks that will be used to make the model more accurate.", default=4)
+    argParser.add_argument('-min_similarity', dest="e", type=float, help="The minimum amount of similarity required for a stock to be eligible as a part of the training set.", default = .6)
+    argParser.add_argument('-num_days_per_example', dest = "de", type=int, help="The number of days to use for one training example", default = 14)
 
     argParser.add_argument('-rnn_hidden_state_size', dest = "h", type = int, help = "The size of the hidden state in the RNN model", default = 200)
     argParser.add_argument('-rnn_backpropagation_truncation_amount', dest = "t", type=int, help = "The number of layers back the model should use in the backprogation algorithm to calculate the gradient for the current layer.", default = 5)
@@ -51,6 +51,8 @@ if __name__ == "__main__":
 
     if namespace.ev:
         startDate = evalStartDate
+
+    
 
     clusterFunctionArgs = [namespace.e, namespace.m, namespace.de, startDate]
     trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de, namespace.ev]
