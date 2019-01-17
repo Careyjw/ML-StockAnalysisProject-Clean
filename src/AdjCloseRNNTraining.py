@@ -44,8 +44,7 @@ if __name__ == "__main__":
     clusteringProcesses = 1 if namespace.cp <= 0 else namespace.cp
     trainingProcesses = maxProcesses-1 if namespace.tp <= 0 else namespace.tp
 
-
-    pipeline = ModelTrainingPipeline(namespace.p, config_handling(), namespace.cp, namespace.tp)
+    pipeline = ModelTrainingPipeline(namespace.p, config_handling(), clusteringProcesses, trainingProcesses)
 
     clusterFunctionArgs = [namespace.e, namespace.m, namespace.de, startDate]
     trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de, namespace.ev]
