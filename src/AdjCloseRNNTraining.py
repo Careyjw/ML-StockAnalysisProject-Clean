@@ -37,22 +37,26 @@ if __name__ == "__main__":
 
     argParser.add_argument('-rnn_num_epochs', dest = "ne", type = int, help = "The number of epochs the model should be trained for, this value is meaningless if the model is being trained until convergence.", default = 1500)
     argParser.add_argument('-evaluationTraining', dest = "ev", type = bool, help = "Whether to train models in accordance with evaluation mode, boolean value", default = False)
+    argParser.add_argument('-data_mode', dest='dm', type=str, help="The type of data processing to train models for. Valid values are MD and LNC", default = "LNC")
 
     namespace = argParser.parse_args()
 
     maxProcesses = namespace.p
     clusteringProcesses = 1 if namespace.cp <= 0 else namespace.cp
     trainingProcesses = maxProcesses-1 if namespace.tp <= 0 else namespace.tp
+    dataMode = namespace.dm
 
     pipeline = ModelTrainingPipeline(namespace.p, config_handling(), clusteringProcesses, trainingProcesses)
 
-    clusterFunctionArgs = [namespace.e, namespace.m, namespace.de, startDate]
-    trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de]
     startDate = defaultStartingDate
 
     if namespace.ev:
         startDate = evalStartDate
+
     clusterFunctionArgs = [namespace.e, namespace.m, namespace.de, startDate]
     trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de, namespace.ev]
 
-    pipeline.usePipeline(get_stock_list(), trainCloseRNNMovementDirections, trainingFunctionArgs, movingAverageClustering, clusterFunctionArgs)
+    if (namespace.dm == "MD"):
+        pipeline.usePipeline(get_stock_list(), trainCloseRNNMovementDirections, trainingFunctionArgs, movingAverageClustering, clusterFunctionArgs)
+    else:
+        print("Error: Other data methods are not currently supported for adjusted close training")
