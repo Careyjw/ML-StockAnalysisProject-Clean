@@ -14,3 +14,4 @@ MovementDirectionSourceID = "MovementDirectionCalculator"
 PercentageChangesSourceID = "PercentageChangesCalculator"
 
 VolumeMovementDirectionsSegmentedID = "VMDS"
+VolumeLNCSegmentedID = "VLNCS"
