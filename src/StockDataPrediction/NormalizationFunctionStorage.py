@@ -17,3 +17,19 @@ def movementDirectionDenormalization(val):
         return "up"
     else:
         return "down"
+
+def limitedNumericChangeNormalization(val):
+    '''Translates limitedNumericChange values into a 0-200 range'''
+    sign = 1
+    if val < 0:
+        sign = 0
+    ret = abs(val) + (100 * sign)
+    return ret
+
+def limitedNumericChangeDenormalization(val):
+    '''Translates values from a 0-200 range into limitedNumericChange values'''
+    if val <= 100:
+        ret = -val
+    else:
+        ret = val - 100
+    return ret

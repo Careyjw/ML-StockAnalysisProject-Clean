@@ -103,6 +103,12 @@ class DataProcessor:
         for tickerData in retDataSource.tickers:
             for i in range(len(tickerData.data)):
                 currDayData = tickerData.data[i]
+                
+                if (currDayData[1] < -100):
+                    currDayData[1] = -100
+                elif (currDayData[1] > 100):
+                    currDayData[1] = 100
+
                 tickerData.data[i] = [currDayData[0], round(currDayData[1])]
         retDataSource.sourceName = LimitedNumericChangeSourceID
 

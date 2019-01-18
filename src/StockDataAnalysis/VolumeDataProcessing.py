@@ -145,6 +145,12 @@ class VolumeDataProcessor:
         for tickerData in volData.tickers:
             for i in range(len(tickerData.data)):
                 currentDayData = tickerData.data[i]
+
+                if (currentDayData[1] < -100):
+                    currentDayData[1] = -100
+                elif (currentDayData[1] > 100):
+                    currentDayData[1] = 100
+
                 tickerData.data[i] = [currentDayData[0], round(currentDayData[1])]
         volData.sourceName = LimitedNumericChangeSourceID
         return volData

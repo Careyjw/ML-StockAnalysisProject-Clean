@@ -3,11 +3,12 @@ from StockDataPrediction.ModelTrainingPipeline import TrainingGroup
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from StockDataAnalysis.DataProcessingUtils import DataProcessor
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
-from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase, VolumeMovementDirectionsSegmentedID
+from StockDataPrediction.NormalizationFunctionStorage import limitedNumericChangeDenormalization, limitedNumericChangeNormalization
+from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase, VolumeMovementDirectionsSegmentedID, VolumeLNCSegmentedID
 from SharedGeneralUtils.CommonValues import startDate as defaultStartingDate
 from typing import List
 
-def parseParametersAndCreateSDCRNN(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List):
+def parseParametersAndCreateSDCRNN(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List, input_size : int = 3):
     '''Parses trainingFunctionArgs and creates an instance of SingleDataCategoryRNN
     Returns rnn instance and parameters not used in rnn creation
     '''
@@ -20,7 +21,7 @@ def parseParametersAndCreateSDCRNN(trainingTickers : 'TrainingGroup', trainingFu
     
     numTrainingEpochs = trainingFunctionArgs[2]
 
-    rnn = SingleDataCategoryRNN(hiddenStateSize, 3, len(otherTickers) + 1, backpropogationTruncationAmount, learningRate, evalLossAfter)
+    rnn = SingleDataCategoryRNN(hiddenStateSize, input_size, len(otherTickers) + 1, backpropogationTruncationAmount, learningRate, evalLossAfter)
 
     trainTickers = otherTickers + [primaryTicker]
 
@@ -92,7 +93,6 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
     closeDataProc = DataProcessor(loginCredentials)
 
     sourceStorages = dataProc.calculateMovementDirections(startDate, endDate=endDate)
-    
     dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainTickers]
     
     preExemplifiedTrainingData = combineDataSets(dataStorage)
@@ -117,6 +117,47 @@ def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', training
         rnn.store(modelStoragePathBase.format(
             "{1}_{0}.scml".format(trainingTickers.primaryTicker, VolumeMovementDirectionsSegmentedID)
         ))
+    dataProc.close()
+    closeDataProc.close()
+
+def trainVolumeRNNLimitedNumericChange(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List, loginCredentials : List[str]):
+    rnn, trainTickers, startDate, numEpochs, examplesPerSet, evalMode = parseParametersAndCreateSDCRNN(trainingTickers, trainingFunctionArgs, input_size=201)
+
+    endDate = None
+    if not startDate == defaultStartingDate:
+        endDate = defaultStartingDate
+
+    dataProc = VolumeDataProcessor(loginCredentials)
+    closeDataProc = DataProcessor(loginCredentials)
+
+    sourceStorages = dataProc.calculateLimitedNumericChange(startDate, endDate=endDate)
+    dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainTickers]
+    
+    preExemplifiedTrainingData = combineDataSets(dataStorage)
+
+    sourceStorages = closeDataProc.calculateLimitedNumericChange("adj_close", startDate, endDate=endDate)
+    dataStorage = [x.data for x in sourceStorages.tickers if x.ticker == trainingTickers.primaryTicker][0]
+    adj_closeTargetData = [x[1] for x in dataStorage]
+
+    adj_closeTargetData = genTargetExampleSets(adj_closeTargetData, examplesPerSet)
+    trainingData = genTrainingExampleSets(preExemplifiedTrainingData, examplesPerSet)
+
+    trainingDataStorage = RNNTrainingDataStorage(limitedNumericChangeNormalization, limitedNumericChangeDenormalization)
+    
+    for i in range(len(trainingData)):
+        trainingDataStorage.addTrainingExample(trainingData[i], adj_closeTargetData[i])
+    
+    rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
+
+    if evalMode:
+        rnn.store(evaluationModelStoragePathBase.format(
+            "{2}_{0}-{1}.scml".format(trainingTickers.primaryTicker, numEpochs, VolumeLNCSegmentedID)
+        ))
+    else:
+        rnn.store(modelStoragePathBase.format(
+            "{1}_{0}.scml".format(trainingTickers.primaryTicker, VolumeLNCSegmentedID)
+        ))
+    
     dataProc.close()
     closeDataProc.close()
 
