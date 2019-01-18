@@ -36,7 +36,7 @@ if __name__ == "__main__":
     argParser.add_argument('-rnn_loss_eval', dest = 'le', type = bool, help = "How many epochs should be completed before evaluating the loss in the model", default = 5)
 
     argParser.add_argument('-rnn_num_epochs', dest = "ne", type = int, help = "The number of epochs the model should be trained for, this value is meaningless if the model is being trained until convergence.", default = 1500)
-
+    argParser.add_argument('-evaluationTraining', dest = "ev", type = bool, help = "Whether to train models in accordance with evaluation mode, boolean value", default = False)
 
     namespace = argParser.parse_args()
 
@@ -48,6 +48,11 @@ if __name__ == "__main__":
 
     clusterFunctionArgs = [namespace.e, namespace.m, namespace.de, startDate]
     trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de]
+    startDate = defaultStartingDate
 
+    if namespace.ev:
+        startDate = evalStartDate
+    clusterFunctionArgs = [namespace.e, namespace.m, namespace.de, startDate]
+    trainingFunctionArgs = [startDate, (namespace.h, namespace.t, namespace.l, namespace.le), namespace.ne, namespace.de, namespace.ev]
 
     pipeline.usePipeline(get_stock_list(), trainCloseRNNMovementDirections, trainingFunctionArgs, movingAverageClustering, clusterFunctionArgs)
