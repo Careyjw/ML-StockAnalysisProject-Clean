@@ -1,0 +1,20 @@
+[<frame> Train, Eval, Predict | 
+[Database Interaction, Clustering, & AI Models] -> [Training] 
+[Database Interaction, Clustering, & AI Models] -> [Evaluation]
+[Database Interaction, Clustering, & AI Models] -> [Prediction]
+[Evaluation] -> [Output]
+[Prediction] -> [Output]
+]
+[Database Interaction | [Database] -> [Data Structures]; [Data Structures] -> [Output]] -> [Train, Eval, Predict]
+
+[Downloading Package] -> [Database Interaction]
+
+[Database Interaction] -> [AI Models]
+[Database Interaction] -> [Clustering]
+[AI Models] -> [Train, Eval, Predict]
+
+[Clustering] -> [Train, Eval, Predict]
+
+[Stored Model Files] Load and Save <-> [AI Models]
+[Train, Eval, Predict] -> [Emails]
+#stroke: #000000

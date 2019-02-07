@@ -1,0 +1,29 @@
+[<class>StoredModelFile | 
+Methods:|[+Save(filename : string);+Load(filename : string)] |
+Variables:| [+ModelType : string;
++Epochs : int;
++Ticker : string;
++ClusteredStocks : List<string>;
++storedModel : AbsAIModel
++FilePath : String
+]
+]
+
+[<abstractclass>AbsAIModel |
+Methods: | [+Train ()
++Predict()
++Load()
++Store()
++Cluster()
++Evaluate()
+] | Variables: | [-StockTicker : string]
+]
+
+[<class>SingleDataCategoryRNN |
+Methods: | [...Private Methods for Execution...] |
+Variables: | [-DataID : string;
+-getTrainData : function;
+-getPredictionData : function
+-clusterData
+]
+]
