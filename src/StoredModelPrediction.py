@@ -34,9 +34,9 @@ if __name__ == "__main__":
     if not namespace.e:
         modelFiles = getModelFiles(modelStoragePathBase)
         msg = devTickerPredEM.multiplyKey("{ticker}", len(modelFiles))
-        for x in modelFiles:
-            modelTypeName, ticker, fileExtension = parseModelString(path.split(x)[1])
-            model = loadModel(fileExtension, x)
+        for currModelFile in modelFiles:
+            modelTypeName, ticker, fileExtension = parseModelString(path.split(currModelFile)[1])
+            model = loadModel(fileExtension, currModelFile)
             predData = genPredictionData(modelTypeName, ticker, loginCredentials, namespace.de, clusterFunctionArgs)
             res = model.predict(predData)
             msg = msg.replaceKey("{ticker}", "Volume Movement Direction Result for {0}: {1}".format(ticker, res), 1)
@@ -47,9 +47,9 @@ if __name__ == "__main__":
     else:
         modelFiles = getModelFiles(evaluationModelStoragePathBase)
 
-        for x in modelFiles:
-            modelTypeName, ticker, epochsTrained, fileExtension = parseEvalModelString(path.split(x)[1])
-            model = loadModel(fileExtension, x)
+        for currModelFile in modelFiles:
+            modelTypeName, ticker, epochsTrained, fileExtension = parseEvalModelString(path.split(currModelFile)[1])
+            model = loadModel(fileExtension, currModelFile)
             predData, evalData, dataStorage = genEvalData(modelTypeName, ticker, loginCredentials, namespace.de, clusterFunctionArgs)
             numCorrect = 0
             for i in range(len(predData)):
