@@ -77,6 +77,8 @@ def genTrainingExampleSets(trainDataSet : List[List], examplesPerSet : int):
 
     return retlist
 
+#TODO: Clean duplicate code
+
 def trainVolumeRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingFunctionArgs : List, loginCredentials : List[str]):
     '''Trains RNN models using volumetric data
     :trainingFunctionArgs format:
