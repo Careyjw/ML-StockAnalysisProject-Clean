@@ -54,6 +54,8 @@ def genPredictionData(modelTypeName : str, ticker : str, loginCredentials : List
         predictionDataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
         predictionDataStorage.addPredictionData(dataStorage[-examplesPerSet:])
         return predictionDataStorage
+    elif modelTypeName == AdjestedMovementDirectionSegmentedID:
+        pass
 
 def genEvalData(modelTypeName : str, ticker : str, loginCredentials : List[str], examplesPerSet : int, clusteringFunctionArgs : List):
     '''Generates evaluation data for the given ticker and model type
@@ -87,6 +89,8 @@ def genEvalData(modelTypeName : str, ticker : str, loginCredentials : List[str],
         return [predData, adj_closeTargetData, dataStorage]
     elif modelTypeName == VolumeLNCSegmentedID:
         #TODO Generate evaluation data for limited numeric change
+        pass
+    elif modelTypeName == AdjestedMovementDirectionSegmentedID:
         pass
 
 

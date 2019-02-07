@@ -192,7 +192,12 @@ def trainCloseRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingF
         trainingDataStorage.addTrainingExample(trainingData[i], adj_closeTargetData[i])
 
     rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
-    rnn.store(modelStoragePathBase.format(
-        "CloMovDir_{0}.scml".format(trainingTickers.primaryTicker)
-    ))
+        if evalMode:
+        rnn.store(evaluationModelStoragePathBase.format(
+            "{2}_{0}-{1}.scml".format(trainingTickers.primaryTicker, numEpochs, AdjestedMovementDirectionSegmentedID)
+        ))
+    else:
+        rnn.store(modelStoragePathBase.format(
+            "{1}_{0}.scml".format(trainingTickers.primaryTicker, AdjestedMovementDirectionSegmentedID)
+        ))
     dataProc.close()
