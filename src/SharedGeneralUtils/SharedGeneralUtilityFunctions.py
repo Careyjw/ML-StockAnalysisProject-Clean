@@ -6,7 +6,7 @@ from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
 from SharedGeneralUtils.CommonValues import startDate
 
 from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import combineDataSets, genTargetExampleSets, genTrainingExampleSets
-from SharedGeneralUtils.CommonValues import modelStoragePathBase, VolumeMovementDirectionsSegmentedID, evalStartDate
+from SharedGeneralUtils.CommonValues import modelStoragePathBase, VolumeMovementDirectionsSegmentedID, evalStartDate, VolumeLNCSegmentedID
 from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN
 from StockDataPrediction.MachineLearningModels.TrainingDataStorages import RNNTrainingDataStorage
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
@@ -60,6 +60,8 @@ def genEvalData(modelTypeName : str, ticker : str, loginCredentials : List[str],
     '''
     trainingTickers = None
     evalClusterArgs = clusteringFunctionArgs[:]
+    #Sets the cluster period to be the start of the evaluation period, so the same stocks are selected for training
+    #As when the evaluation model was trained.
     evalClusterArgs[-1] = evalStartDate
     if modelTypeName == VolumeMovementDirectionsSegmentedID:
         trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, evalClusterArgs)
@@ -83,6 +85,9 @@ def genEvalData(modelTypeName : str, ticker : str, loginCredentials : List[str],
         closeDataProc.close()
 
         return [predData, adj_closeTargetData, dataStorage]
+    elif modelTypeName == VolumeLNCSegmentedID:
+        #TODO Generate evaluation data for limited numeric change
+        pass
 
 
 def getModelFiles(pathBase : str) -> List[str]:
