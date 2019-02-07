@@ -13,5 +13,6 @@ LimitedNumericChangeSourceID = "LimitedNumericChangeCalculator"
 MovementDirectionSourceID = "MovementDirectionCalculator"
 PercentageChangesSourceID = "PercentageChangesCalculator"
 
+AdjestedMovementDirectionSegmentedID = "ACMDS"
 VolumeMovementDirectionsSegmentedID = "VMDS"
 VolumeLNCSegmentedID = "VLNCS"
