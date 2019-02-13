@@ -1,4 +1,4 @@
-from EmailUtils.EClient import EClientFilter
+from Email.EClient import EClientFilter
 
 devClientFilter = None
 

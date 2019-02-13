@@ -1,5 +1,5 @@
 from typing import List, IO
-from EmailUtils.EMessage import EMessage
+from Email.EMessage import EMessage
 
 class EClient:
 

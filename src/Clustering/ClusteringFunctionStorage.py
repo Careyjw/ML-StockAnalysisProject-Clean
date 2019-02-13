@@ -1,9 +1,9 @@
 from typing import List
-from StockDataAnalysis.DataProcessingUtils import DataProcessor
-from StockDataAnalysis.ClusteringUtils import calculateMovingAveragePercentageSimilarity
+from Data.ModelDataProcessing.DataProcessingUtils import DataProcessor
+from Clustering.ClusteringUtils import calculateMovingAveragePercentageSimilarity
 from datetime import datetime
 
-def movingAverageClustering(ticker : str, loginCredentials : List[str], clusterFunctionArguments : List):
+def movingAverageClustering(modelConfiguration):
     '''Calculates the most similar stocks for the stock given by ticker using the moving average
     :param ticker: Stock ticker to calculate similarities for
     :param loginCredentials: Credentials to access
@@ -13,16 +13,17 @@ def movingAverageClustering(ticker : str, loginCredentials : List[str], clusterF
 
     :return: [primaryTicker, [other tickers assigned based on similarity to primary]]
     '''
-
-    numDaysPerAverage = 14
-
-    minimumSimilarity = clusterFunctionArguments[0]
-    maxNumSimilarTickers = clusterFunctionArguments[1]
-    numDaysPerAverage = clusterFunctionArguments[2]
-    startDate = clusterFunctionArguments[3]
+    ticker = modelConfiguration['General']['sTicker']
+    startDate = modelConfiguration['General']['dtStartingDate']
+    endDate = modelConfiguration['General']['dtEndingDate']
+    loginCredentials = modelConfiguration['General']['lsLoginCredentials']
+    
+    minimumSimilarity = float(modelConfiguration['General']['fMinimumSimilarity'])
+    maxNumSimilarTickers = int(modelConfiguration['General']['iMaxTrainingTickers'])
+    numDaysPerAverage = int(modelConfiguration['General']['iNumberDaysPerExample'])
 
     dataMan = DataProcessor(loginCredentials)
-    dataStorage = dataMan.getRawData(["hist_date", "adj_close"], startDate)
+    dataStorage = dataMan.getRawData(["hist_date", "adj_close"], startDate, endDate)
     mainTickerData = [x for x in dataStorage if x.ticker == ticker][0]
     otherTickerData = [x for x in dataStorage if not x.ticker == ticker]
     differenceScores = []
@@ -31,7 +32,7 @@ def movingAverageClustering(ticker : str, loginCredentials : List[str], clusterF
         if (simScore < 1):
             differenceScores.append( (simScore, otherTicker.ticker) )
     differenceScores = sorted(differenceScores, key= lambda var: var[0]) [:maxNumSimilarTickers]
-    return [ticker, [x[1] for x in differenceScores if (1 - x[0]) >= minimumSimilarity]]
+    return [x[1] for x in differenceScores if (1 - x[0]) >= minimumSimilarity]
 
 
 

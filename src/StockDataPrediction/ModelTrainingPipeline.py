@@ -191,7 +191,7 @@ class TrainingGroup:
         @param primaryTicker: The main ticker. 
         All other tickers in this class will be used to train a model to predict the primary ticker
         '''
-        self.primaryTicker = primaryTicker;
+        self.primaryTicker = primaryTicker
         self.trainingTickers = []
         pass
     

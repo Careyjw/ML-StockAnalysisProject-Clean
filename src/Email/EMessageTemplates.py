@@ -1,4 +1,4 @@
-from EmailUtils.EMessage import EMessage
+from Email.EMessage import EMessage
 
 devTickerPredEM : "EMessage" = None
 

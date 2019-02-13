@@ -1,4 +1,4 @@
-from StockDataAnalysis.DataProcessingUtils import DataProcessor, calculatePercentageChange
+from Data.ModelDataProcessing.DataProcessingUtils import DataProcessor, calculatePercentageChange
 from SharedGeneralUtils.CommonValues import PercentageChangesSourceID, LimitedNumericChangeSourceID, MovementDirectionSourceID
 from SharedGeneralUtils.SharedDataStorageClasses import TickerDataStorage, SourceDataStorage
 

@@ -1,7 +1,8 @@
-from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN, RNNTrainingDataStorage
+from AI.SingleDataCategoryRNN import SingleDataCategoryRNN
+from Data.Structures.TrainingDataStorages import RNNTrainingDataStorage
 from StockDataPrediction.ModelTrainingPipeline import TrainingGroup
-from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
-from StockDataAnalysis.DataProcessingUtils import DataProcessor
+from Data.ModelDataProcessing.VolumeDataProcessing import VolumeDataProcessor
+from Data.ModelDataProcessing.DataProcessingUtils import DataProcessor
 from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
 from StockDataPrediction.NormalizationFunctionStorage import limitedNumericChangeDenormalization, limitedNumericChangeNormalization
 from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase, VolumeMovementDirectionsSegmentedID, VolumeLNCSegmentedID
@@ -151,14 +152,14 @@ def trainVolumeRNNLimitedNumericChange(trainingTickers : 'TrainingGroup', traini
     
     rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
 
-    if evalMode:
-        rnn.store(evaluationModelStoragePathBase.format(
-            "{2}_{0}-{1}.scml".format(trainingTickers.primaryTicker, numEpochs, VolumeLNCSegmentedID)
-        ))
-    else:
-        rnn.store(modelStoragePathBase.format(
-            "{1}_{0}.scml".format(trainingTickers.primaryTicker, VolumeLNCSegmentedID)
-        ))
+#    if evalMode:
+#        rnn.store(evaluationModelStoragePathBase.format(
+#            "{2}_{0}-{1}.scml".format(trainingTickers.primaryTicker, numEpochs, VolumeLNCSegmentedID)
+#        ))
+#    else:
+#        rnn.store(modelStoragePathBase.format(
+#            "{1}_{0}.scml".format(trainingTickers.primaryTicker, VolumeLNCSegmentedID)
+#        ))
     
     dataProc.close()
     closeDataProc.close()

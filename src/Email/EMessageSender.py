@@ -1,5 +1,5 @@
-from EmailUtils.EMessage import EMessage
-from EmailUtils.EClient import EClient
+from Email.EMessage import EMessage
+from Email.EClient import EClient
 import smtplib as slib
 from email.mime.text import MIMEText
 

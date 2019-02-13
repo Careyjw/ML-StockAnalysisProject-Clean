@@ -1,23 +1,25 @@
 from configparser import ConfigParser, NoSectionError, NoOptionError
 from os import listdir
 from typing import List
+import sys
 
-from SharedGeneralUtils.ClientFilterTemplates import devClientFilter
+from Email.ClientFilterTemplates import devClientFilter
+from Email.EClient import EClient, EClientFilter
+
 from SharedGeneralUtils.CommonValues import startDate
 
-from StockDataPrediction.TrainingFunctionStorage.TrainingFunctionStorage import combineDataSets, genTargetExampleSets, genTrainingExampleSets
+from Training.TrainingUtilityFunctions import combineDataSets, genTargetExampleSets, genTrainingExampleSets
 from SharedGeneralUtils.CommonValues import modelStoragePathBase, VolumeMovementDirectionsSegmentedID, evalStartDate, VolumeLNCSegmentedID
-from StockDataPrediction.MachineLearningModels.SingleDataCateogryRNN import SingleDataCategoryRNN
-from StockDataPrediction.MachineLearningModels.TrainingDataStorages import RNNTrainingDataStorage
-from StockDataPrediction.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
+from AI.SingleDataCategoryRNN import SingleDataCategoryRNN
+from Data.Structures.TrainingDataStorages import RNNTrainingDataStorage
+from Training.NormalizationFunctionStorage import movementDirectionDenormalization, movementDirectionNormalization
 
-from EmailUtils.EClient import EClient, EClientFilter
 
-from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
-from StockDataAnalysis.DataProcessingUtils import DataProcessor
-from StockDataAnalysis.ClusteringFunctionStorage import movingAverageClustering
+from Data.ModelDataProcessing.VolumeDataProcessing import VolumeDataProcessor
+from Data.ModelDataProcessing.DataProcessingUtils import DataProcessor
+from Clustering.ClusteringFunctionStorage import movingAverageClustering
 
-from SharedGeneralUtils.CommonValues import configurationFileLocation, stockTickerFileLocation
+from SharedGeneralUtils.CommonValues import configurationFileLocation, stockTickerFileLocation, modelConfigurationFileLocation, modelConfiguration
 
 from os import path
 
@@ -132,7 +134,6 @@ def write_default_configs(parser, file_position):
     
     parser.add_section('login_credentials')
     parser.set('login_credentials', 'user', 'root')
-    parser.set('login_credentials', 'password', "")
     parser.set('login_credentials', 'database', 'stock_testing')
     parser.set('login_credentials', 'host', 'localhost')
     fp = open(file_position, 'w')
@@ -157,16 +158,31 @@ def config_handling():
     config_file.close()
     try:
         user = parser.get('login_credentials', 'user')
-        password = parser.get('login_credentials', 'password')
         database = parser.get('login_credentials', 'database')
         host = parser.get('login_credentials', 'host')
     except (NoSectionError, NoOptionError):
         write_default_configs(parser, configurationFileLocation)
         user = parser.get('login_credentials', 'user')
-        password = parser.get('login_credentials', 'password')
         database = parser.get('login_credentials', 'database')
         host = parser.get('login_credentials', 'host')
-    return [host, user, password, database]
+    return [host, user, None, database]
+
+def modelConfigHandling():
+    '''Does all configuration handling using configparser package
+    Uses file location that is build into this module,
+    And it will write default values if the file is not found.
+    '''
+    parser = modelConfiguration
+    try:
+        fp = open(modelConfigurationFileLocation, 'r')
+        fp.close()
+    except FileNotFoundError:
+        print("Model Configuration File not found: {0}\nPlease create a valid configuration file for model configuration.", file=sys.stderr)
+        modelWriteDefaultConfigs(parser)
+    configFile = open(modelConfigurationFileLocation, 'r')
+    parser.read_file(configFile)
+    configFile.close()
+
 
 def get_stock_list():
     '''Obtains a list of all stock tickers to attempt to download

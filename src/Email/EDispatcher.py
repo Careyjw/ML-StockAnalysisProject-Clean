@@ -1,8 +1,8 @@
 from os.path import exists
 from typing import List
-from EmailUtils.EClient import EClient
-from EmailUtils.EMessage import EMessage
-from EmailUtils.EMessageSender import EMessageSender
+from Email.EClient import EClient
+from Email.EMessage import EMessage
+from Email.EMessageSender import EMessageSender
 
 
 class EDispatcher:
