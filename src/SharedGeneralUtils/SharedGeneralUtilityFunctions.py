@@ -55,7 +55,18 @@ def genPredictionData(modelTypeName : str, ticker : str, loginCredentials : List
         predictionDataStorage.addPredictionData(dataStorage[-examplesPerSet:])
         return predictionDataStorage
     elif modelTypeName == AdjestedMovementDirectionSegmentedID:
-        pass
+        #currently untested
+        trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, clusteringFunctionArgs)
+        trainingTickers = [trainingTickers[0]] + trainingTickers[1]
+        
+        dataProc=DataProcessor(loginCredentials)
+        sourceStorages = dataProc.calculateMovementDirections(clusteringFunctionArgs[-1])
+        dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainingTickers]
+        dataStorage = combineDataSets(dataStorage)
+        predictionDataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
+        predictionDataStorage.addPredictionData(dataStorage[-examplesPerSet:])
+        return predictionDataStorage
+        #end of AdjestedMovementDirectionSegmentedID elif
 
 def genEvalData(modelTypeName : str, ticker : str, loginCredentials : List[str], examplesPerSet : int, clusteringFunctionArgs : List):
     '''Generates evaluation data for the given ticker and model type
@@ -91,7 +102,28 @@ def genEvalData(modelTypeName : str, ticker : str, loginCredentials : List[str],
         #TODO Generate evaluation data for limited numeric change
         pass
     elif modelTypeName == AdjestedMovementDirectionSegmentedID:
-        pass
+        #currently untested
+        
+        trainingTickers = movingAverageClustering(ticker, loginCredentials, 0, evalClusterArgs)
+        trainingTickers = [trainingTickers[0]] + trainingTickers[1]
+
+        closeDataProc = DataProcessor(loginCredentials)
+        sourceStorages=closeDataProc.calculateMovementDirections(clusteringFunctionArgs[-1])
+        dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainingTickers]
+        dataStorage = combineDataSets(dataStorage)
+        predData = genTrainingExampleSets(dataStorage, examplesPerSet)
+    
+        sourceStorages = closeDataProc.calculateMovementDirections("adj_close", clusteringFunctionArgs[-1])
+        dataStorage = [x.data for x in sourceStorages.tickers if x.ticker == ticker][0]
+        adj_closeTargetData = [x[1] for x in dataStorage]
+        adj_closeTargetData = genTargetExampleSets(adj_closeTargetData, examplesPerSet)
+        adj_closeTargetData = [[x[-1]] for x in adj_closeTargetData]
+        dataStorage = RNNTrainingDataStorage(movementDirectionNormalization, movementDirectionDenormalization)
+
+        closeDataProc.close()
+
+        return [predData, adj_closeTargetData, dataStorage]
+        #end of AdjestedMovementDirectionSegmentedID elif
 
 
 def getModelFiles(pathBase : str) -> List[str]:

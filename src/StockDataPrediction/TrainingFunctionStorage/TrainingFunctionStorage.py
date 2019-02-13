@@ -192,7 +192,8 @@ def trainCloseRNNMovementDirections(trainingTickers : 'TrainingGroup', trainingF
         trainingDataStorage.addTrainingExample(trainingData[i], adj_closeTargetData[i])
 
     rnn.trainEpoch_BatchGradientDescent(trainingDataStorage, numEpochs)
-        if evalMode:
+    #currently untested evalMode
+    if evalMode:
         rnn.store(evaluationModelStoragePathBase.format(
             "{2}_{0}-{1}.scml".format(trainingTickers.primaryTicker, numEpochs, AdjestedMovementDirectionSegmentedID)
         ))
