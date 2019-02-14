@@ -1,6 +1,6 @@
 from Data.ModelDataProcessing.DataProcessingUtils import DataProcessor, calculatePercentageChange
-from SharedGeneralUtils.CommonValues import PercentageChangesSourceID, LimitedNumericChangeSourceID, MovementDirectionSourceID
-from SharedGeneralUtils.SharedDataStorageClasses import TickerDataStorage, SourceDataStorage
+from Data.Structures.SharedDataStorageClasses import TickerDataStorage, SourceDataStorage
+from Common.CommonValues import PercentageChangesSourceID, LimitedNumericChangeSourceID, MovementDirectionSourceID
 
 def calcSign(x):
     '''Returns the sign of x

@@ -1,6 +1,6 @@
 import unittest
 from StockDataPrediction.ModelTrainingPipeline import ModelTrainingPipeline
-from SharedGeneralUtils.SharedGeneralUtils import config_handling
+from Common.Util.CommonFunctions import config_handling
 from time import sleep
 
 def NormalClusteringFunction (primaryTicker, loginCredentials, trainingPosition):

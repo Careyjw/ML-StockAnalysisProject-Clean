@@ -9,8 +9,8 @@ This file should contain classes and functions used to process data stored in th
 Into a usable format for machine learning training and clustering
 '''
 from Data.Database.MySQLUtils import MYSQLDataManipulator, stockListTableColList, tableNameBaseString
-from SharedGeneralUtils.SharedDataStorageClasses import SourceDataStorage, TickerDataStorage
-from SharedGeneralUtils.CommonValues import PercentageChangesSourceID, LimitedNumericChangeSourceID, MovementDirectionSourceID
+from Data.Structures.SharedDataStorageClasses import SourceDataStorage, TickerDataStorage
+from Common.CommonValues import PercentageChangesSourceID, LimitedNumericChangeSourceID, MovementDirectionSourceID
 
 from datetime import datetime as dt
 

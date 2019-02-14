@@ -4,8 +4,8 @@
 '''
 
 from Clustering.ClusteringFunctionStorage import movingAverageClustering
-from SharedGeneralUtils.CommonValues import startDate, evalStartDate
-from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase
+from Common.CommonValues import startDate, evalStartDate
+from Common.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase
 from AI.StoredModelFile import StoredModelFile
 from Common.Util.ConfigurationUtils import insertTicker, insertClusteredStocks
 from typing import List

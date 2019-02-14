@@ -1,5 +1,5 @@
 import unittest
-from SharedGeneralUtils.SharedGeneralUtils import config_handling
+from Common.Util.CommonFunctions import config_handling
 from DatabaseUtils.MySQLUtils import MYSQLDataManipulator, stockListTableColList, stockListTableCreationColList, tickerDataTableColList, tickerDataTableCreationColList
 from StockDataAnalysis.VolumeDataProcessing import VolumeDataProcessor
 from datetime import datetime as dt, timedelta as td

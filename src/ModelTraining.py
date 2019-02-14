@@ -8,7 +8,7 @@ from Training.TrainingFunctionStorage import trainModel
 
 from Common.Util.ConfigurationUtils import insertAdditionalSettings, extractRelevantConfiguration
 
-from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling, get_stock_list, modelConfigHandling
+from Common.Util.CommonFunctions import config_handling, get_stock_list, modelConfigHandling
 
 from configparser import ConfigParser
 
@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 
 from os import cpu_count, path
 from datetime import datetime, timedelta
-from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase
+from Common.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase
 
 def parseArgs():
     argParser = ArgumentParser(description="Module for training Recurrent Neural Networks on Volumetric data to predict stock price movements")

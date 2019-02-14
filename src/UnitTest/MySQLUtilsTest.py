@@ -1,6 +1,6 @@
 import unittest
 from DatabaseUtils import MySQLUtils as utils
-import SharedGeneralUtils.SharedGeneralUtils as genUtils
+import Common.Util.CommonFunctions as genUtils
 from datetime import datetime as dt
 from datetime import date
 

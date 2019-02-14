@@ -10,7 +10,7 @@ that are not needed to be visible for the calling method(s)
 '''
 
 from .YahooDataDownloader import getCookieAndCrumb, buildURL, getDataFromURL
-from SharedGeneralUtils.SharedDataStorageClasses import SourceDataStorage
+from Data.Structures.SharedDataStorageClasses import SourceDataStorage
 from datetime import datetime as dt
 
 

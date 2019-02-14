@@ -1,8 +1,8 @@
-from SharedGeneralUtils.SharedGeneralUtilityFunctions import config_handling, getModelFiles, parseEvalModelString, genEvalData
-from SharedGeneralUtils.SharedGeneralUtilityFunctions import loadModel, parseModelString, genPredictionData, genClients
-from SharedGeneralUtils.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase, startDate
+from Common.Util.CommonFunctions import config_handling, getModelFiles, parseEvalModelString, genEvalData
+from Common.Util.CommonFunctions import loadModel, parseModelString, genPredictionData, genClients
+from Common.CommonValues import modelStoragePathBase, evaluationModelStoragePathBase, startDate
 
-from SharedGeneralUtils.EMessageTemplates import devTickerPredEM
+from Email.EMessageTemplates import devTickerPredEM
 
 from EmailUtils.EMessageSender import EMessageSender
 

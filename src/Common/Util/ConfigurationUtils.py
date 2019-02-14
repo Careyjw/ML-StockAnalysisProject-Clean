@@ -1,5 +1,5 @@
 from Data.Structures.CaselessDictionary import CaselessDictionary
-from SharedGeneralUtils.CommonValues import startDate, evalStartDate, modelConfiguration
+from Common.CommonValues import startDate, evalStartDate, modelConfiguration
 from datetime import timedelta
 
 def extractRelevantConfiguration(modelID):

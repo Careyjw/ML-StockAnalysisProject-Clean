@@ -20,10 +20,12 @@ def softmax(x):
     return x
 
 def registerModel(cls):
+    print("registeringModel")
     Abs_AIModel.registerModel("SC", cls)
 
 #The annotation below actually calls the method registerModel at the time that the
 #class is being first created
+#Called once per thread
 @registerModel
 class SingleDataCategoryRNN (Abs_AIModel):
 
