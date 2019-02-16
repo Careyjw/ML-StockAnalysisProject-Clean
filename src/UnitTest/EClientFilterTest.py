@@ -1,5 +1,5 @@
-from EmailUtils.EClient import EClientFilter, FilterCombinationError
-from EmailUtils.EMessage import EMessage
+from Email.EClient import EClientFilter, FilterCombinationError
+from Email.EMessage import EMessage
 import unittest
 
 msg1Body = '''Hello {customer},
