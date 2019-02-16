@@ -15,9 +15,14 @@ class Abs_AIModel:
         cls.registeredModels[modelStr] = model
 
     @classmethod
+    def getModelTypeFromID(cls, ID : str):
+        for endingString, model in cls.registeredModels.items():
+            if (ID.endswith(endingString)):
+                return model
+
+    @classmethod
     def createModelFromID(cls, ID : str, modelConfiguration):
-        if (ID.endswith('SC')):
-            return cls.registeredModels['SC'](modelConfiguration)
+        return cls.getModelTypeFromID(ID)(modelConfiguration)
 
     @abstractmethod
     def Train(self, modelConfiguration):
@@ -29,9 +34,8 @@ class Abs_AIModel:
 
     @classmethod
     @abstractmethod
-    def Load(cls, fileHandle):
-        #TODO: Create basic implementation to load models
-        raise NotImplementedError
+    def Load(cls, fileHandle, modelConfiguration):
+        pass
 
     @abstractmethod
     def Save(self, fileHandle):
