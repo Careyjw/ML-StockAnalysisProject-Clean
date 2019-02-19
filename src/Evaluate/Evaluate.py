@@ -10,3 +10,10 @@ def LoadModels(loginCredentials : List[str]) -> List["StoredModelFile"]:
     for path in evalModelFilePaths:
         storedModels.append(StoredModelFile.Load(path))
     return storedModels
+
+def EvaluateModels(loadedModels : List["StoredModelFile"]) -> List[tuple]:
+    accuracies = []
+    for model in loadedModels:
+        accuracy = model.Evaluate()
+        accuracies.append( (model, accuracy) )
+    return accuracies
