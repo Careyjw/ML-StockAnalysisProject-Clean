@@ -20,6 +20,9 @@ class StoredModelFile:
         self.FilePathBase = filePathBase
         self.__StoredModel = Abs_AIModel.createModelFromID(self.ModelID, modelConfiguration)
 
+    def Evaluate(self):
+        self.__StoredModel.Evaluate(self.modelConfiguration)
+
     def Train(self):
         self.__StoredModel.Train(self.modelConfiguration)
 
