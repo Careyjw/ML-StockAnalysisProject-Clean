@@ -25,7 +25,7 @@ class StoredModelFile:
 
     @classmethod
     def Load(cls, filePath : str, loginCredentials : List[str]):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def __parseFileName(self, fileName : str):
         split = fileName.split("_")
