@@ -36,7 +36,8 @@ class Abs_AIModel:
     @abstractmethod
     def Load(cls, fileHandle, modelConfiguration):
         mod = cls.getModelTypeFromID(modelConfiguration['General']['sModelID'])
-        mod.Load(fileHandle, modelConfiguration)
+        mod = mod.Load(fileHandle, modelConfiguration)
+        return mod
 
     @abstractmethod
     def Save(self, fileHandle):

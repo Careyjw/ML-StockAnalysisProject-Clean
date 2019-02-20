@@ -11,6 +11,7 @@ from Data.Structures.ClusteredStockStorage import ClusteredStockStorage
 import numpy as np
 import math
 import random
+from datetime import timedelta
 from typing import List
 
 def softmax(x):
@@ -89,10 +90,24 @@ class SingleDataCategoryRNN (Abs_AIModel):
         dataStorage = self.__getData(modelConfiguration)
         self.trainEpoch_BatchGradientDescent(dataStorage, self.numEpochs)
 
+    def __calculateAccuracy(self, dataStorage) -> float:
+        X, Y = dataStorage.extractData()
+        numExamples = len(X)
+        numCorrect = 0
+        for i in range(numExamples):
+            predicted = np.argmax(self.forward_prop(X[i])[0][-1])
+            if (Y[i][predicted] == 1):
+                numCorrect += 1
+        return numCorrect / numExamples
+
+
     def Evaluate(self, modelConfiguration):
         '''Evaluates the model using the stock list provided in modelConfiguration
         Returns a percentage accuracy (float)'''
-        raise NotImplementedError
+        modelConfiguration['General']['dtStartingDate'] = modelConfiguration['General']['dtStartingDate'] + timedelta(365)
+        modelConfiguration['General']['dtEndingDate'] = modelConfiguration['General']['dtEndingDate'] + timedelta(365)
+        dataStorage = self.__getData(modelConfiguration)
+        return self.__calculateAccuracy(dataStorage)
 
     def Predict (self, clusteredStocks : 'ClusteredStockStorage'):
         '''Makes a prediction using the most recent data stored in the database
