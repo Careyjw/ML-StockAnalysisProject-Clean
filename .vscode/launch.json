@@ -10,12 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}\\src\\EPMain.py",
             "console": "integratedTerminal",
-            "args":[
-                "-dp",
-                "Sora1674@",
-                "-ep",
-                "PrayersAndFaith"
-            ],
+            "args":[],
             "cwd": "${workspaceFolder}\\src"
         },
         
