@@ -206,12 +206,3 @@ class FilterCombinationError(Exception):
     '''Raised when combining filters goes wrong'''
     pass
 
-
-def genClients():
-    '''Generates a quick list of clients to send data to.
-    :status: temporary, will need to be replaced
-    '''
-    jimClient = EClient("Jim Carey", "careyjw@plu.edu", devClientFilter)
-    coltonClient = EClient("Colton Freitas", "freitacr@plu.edu", devClientFilter)
-    #return [jimClient, coltonClient]
-    return [coltonClient]
