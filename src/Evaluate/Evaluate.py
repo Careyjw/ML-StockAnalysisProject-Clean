@@ -33,8 +33,14 @@ def AssembleEmailTemplate(accuracyList : List[tuple]) -> "EMessage":
         retTemplate = retTemplate.replaceKey("{ticker}", modAccuracyString)
     return retTemplate
 
-def PushEmails(clientList : List["EClient"], eMessage):
-    for cli in clientLIst:
+def PushEmails(clientList : List["EClient"], eMessage, emailSys):
+    for cli in clientList:
         sendMsg = eMessage.replaceKey("{customer}", cli.clientName)
         emailSys.sendMessage(sendMsg, cli)
+
+def Evaluate(loginCredentials, emailSystem, clients):
+    models = LoadModels(loginCredentials)
+    accList = EvaluateModels(models)
+    template = AssembleEmailTemplate(accList)
+    PushEmails(clients, template, emailSystem)
 
