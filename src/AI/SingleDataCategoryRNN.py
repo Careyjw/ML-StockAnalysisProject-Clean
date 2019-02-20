@@ -57,12 +57,7 @@ class SingleDataCategoryRNN (Abs_AIModel):
         self.losses = []
 
 
-    def Save(self, fileHandle):
-        fileHandle.write("%f\n" % (self.learningRate))
-        fileHandle.write("%d\n" % (self.hiddenStateSize))
-        fileHandle.write("%d\n" % (self.inputSize))
-        fileHandle.write("%d\n" % (self.numInputsPerStep))
-        
+    def Save(self, fileHandle):        
         self.__storeMatrix(self.U, fileHandle)
         self.__storeMatrix(self.W, fileHandle)
         self.__storeMatrix(self.V, fileHandle)
@@ -70,18 +65,14 @@ class SingleDataCategoryRNN (Abs_AIModel):
         self.__storeMatrix(self.inputWeights, fileHandle)
 
     @classmethod
-    def Load(cls, fileHandle):
-        learningRate = float( fileHandle.readline() )
-        hiddenStateSize = int( fileHandle.readline() )
-        inputSize = int( fileHandle.readline() )
-        numInputsPerStep = int( fileHandle.readline() )
-        
+    def Load(cls, fileHandle, modelConfiguration):
+        rnn = cls(modelConfiguration)
+
         U = (cls.__loadMatrix(fileHandle))
         W = (cls.__loadMatrix(fileHandle))
         V = (cls.__loadMatrix(fileHandle))
         inputWeights = (cls.__loadMatrix(fileHandle))
         
-        rnn = SingleDataCategoryRNN(hiddenStateSize, inputSize, numInputsPerStep, learningRate=learningRate)
         rnn.U = U
         rnn.W = W
         rnn.V = V
