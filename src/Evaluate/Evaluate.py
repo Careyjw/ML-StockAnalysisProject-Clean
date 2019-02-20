@@ -33,3 +33,8 @@ def AssembleEmailTemplate(accuracyList : List[tuple]) -> "EMessage":
         retTemplate = retTemplate.replaceKey("{ticker}", modAccuracyString)
     return retTemplate
 
+def PushEmails(clientList : List["EClient"], eMessage):
+    for cli in clientLIst:
+        sendMsg = eMessage.replaceKey("{customer}", cli.clientName)
+        emailSys.sendMessage(sendMsg, cli)
+
