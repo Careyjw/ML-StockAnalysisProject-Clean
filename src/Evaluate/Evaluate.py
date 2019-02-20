@@ -24,3 +24,12 @@ def EvaluateModels(loadedModels : List["StoredModelFile"]) -> List[tuple]:
         accuracies.append( (model, accuracy) )
     return accuracies
 
+def AssembleEmailTemplate(accuracyList : List[tuple]) -> "EMessage":
+    baseModelAccuracyString = "{modID} version of {ticker} trained for {epochs} epochs accuracy : {accuracy}"
+    iNumTickers = len(accuracyList)
+    retTemplate = devTickerPredEM.multiplyKey("{ticker}", iNumTickers)
+    for model, accuracy in accuracyList:
+        modAccuracyString = baseModelAccuracyString.format(ticker=model.Ticker, modID=model.ModelID, epochs=int(model.Epochs), accuracy=accuracy)
+        retTemplate = retTemplate.replaceKey("{ticker}", modAccuracyString)
+    return retTemplate
+
