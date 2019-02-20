@@ -5,7 +5,10 @@
 
 from AI.AbsAIModel import Abs_AIModel
 from Common.Util.DateUtil import dateToTimestamp
+from Data.Structures.CaselessDictionary import CaselessDictionary
+from datetime import date
 from typing import List
+from os import path
 
 class StoredModelFile:
     
@@ -14,11 +17,12 @@ class StoredModelFile:
         self.Ticker = self.modelConfiguration['General']['sTicker']
         self.Epochs = self.modelConfiguration[self.ModelID]['iNumEpochs']
 
-    def __init__ (self, filePathBase : str, modelConfiguration):
+    def __init__ (self, filePathBase : str, modelConfiguration, load=False):
         self.modelConfiguration = modelConfiguration
         self.__parseConfiguration()
         self.FilePathBase = filePathBase
-        self.__StoredModel = Abs_AIModel.createModelFromID(self.ModelID, modelConfiguration)
+        if not load:
+            self.__StoredModel = Abs_AIModel.createModelFromID(self.ModelID, modelConfiguration)
 
     def Evaluate(self):
         self.__StoredModel.Evaluate(self.modelConfiguration)
@@ -27,15 +31,48 @@ class StoredModelFile:
         self.__StoredModel.Train(self.modelConfiguration)
 
     @classmethod
-    def Load(cls, filePath : str, loginCredentials : List[str]):
-        raise NotImplementedError()
+    def parseConfigurationAdditions(cls, fileHandle, modelConfiguration):
+        endingDate = float(fileHandle.readline())
+        startingDate = float(fileHandle.readline())
+        clusteredStocks = fileHandle.readline()
+        iNumExamples = int(fileHandle.readline())
 
-    def __parseFileName(self, fileName : str):
+        line = fileHandle.readline()
+        modelID = modelConfiguration['General']['sModelID']
+        while not line.strip() == modelID:
+            split = line.split('=')
+            modelConfiguration[modelID][split[0]] = split[1]
+            line = fileHandle.readline()
+
+        if not len(clusteredStocks) == 0:
+            split = clusteredStocks.split(',')
+            clusteredStocks = split
+        endingDate = date.fromtimestamp(endingDate)
+        startingDate = date.fromtimestamp(startingDate)
+        modelConfiguration['General']['dtStartingDate'] = startingDate
+        modelConfiguration['General']['dtEndingDate'] = endingDate
+        modelConfiguration['General']['lsClusteredStocks'] = clusteredStocks
+
+    @classmethod
+    def Load(cls, filePath : str, modelConfiguration):
+        filePathBase, fileName = path.split(filePath)
+        fileHandle = open(filePath, 'r')
+        cls.parseFileName(fileName, modelConfiguration)
+        cls.parseConfigurationAdditions(fileHandle, modelConfiguration)
+        ret = cls(filePathBase, modelConfiguration, load=True)
+        ret.__StoredModel = Abs_AIModel.Load(fileHandle, modelConfiguration)
+        fileHandle.close()
+        return ret
+        
+    @classmethod
+    def parseFileName(cls, fileName : str, modelConfiguration):
         split = fileName.split("_")
-        self.ModelID = split[0]
-        split = fileName.split("-")
-        self.Ticker = split[0]
-        self.Epochs = split[1]
+        modelConfiguration["General"]["sModelID"] = split[0]
+        modelID = split[0]
+        split = split[1].split("-")
+        modelConfiguration["General"]["sTicker"] = split[0]
+        modelConfiguration[modelID] = CaselessDictionary()
+        modelConfiguration[modelID]["iNumEpochs"] = split[1]
 
     def Save(self):
         startingDate = self.modelConfiguration['General']['dtStartingDate']
