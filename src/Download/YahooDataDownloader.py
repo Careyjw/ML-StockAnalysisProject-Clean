@@ -7,7 +7,7 @@ Created on Nov 27, 2018
 Contains specialized methods to download stock data from Yahoo
 '''
 
-from StockDataDownloader.SharedUtilities import openURL
+from Download.SharedUtilities import openURL
 from datetime import datetime as dt
 from Data.Structures.SharedDataStorageClasses import TickerDataStorage
 

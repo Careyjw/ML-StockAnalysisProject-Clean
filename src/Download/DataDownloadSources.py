@@ -9,7 +9,7 @@ These methods will call further sub methods to accomplish their tasks
 that are not needed to be visible for the calling method(s)
 '''
 
-from .YahooDataDownloader import getCookieAndCrumb, buildURL, getDataFromURL
+from Download.YahooDataDownloader import getCookieAndCrumb, buildURL, getDataFromURL
 from Data.Structures.SharedDataStorageClasses import SourceDataStorage
 from datetime import datetime as dt
 
