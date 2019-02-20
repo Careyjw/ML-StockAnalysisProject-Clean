@@ -78,6 +78,6 @@ class EMessage:
             "{0}:{1}\n".format(self.identifier, ",".join(self.subIdentifiers))
         )
         fileHandle.write(self.subject + "\n")
-        fileHandle.write(self.defaultMessageStatus + "\n")
+        fileHandle.write(str(self.defaultMessageStatus) + "\n")
         fileHandle.write(self.body)
         fileHandle.close()
