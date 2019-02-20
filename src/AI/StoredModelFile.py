@@ -75,7 +75,7 @@ class StoredModelFile:
         split = split[1].split("-")
         modelConfiguration["General"]["sTicker"] = split[0]
         modelConfiguration[modelID] = CaselessDictionary()
-        modelConfiguration[modelID]["iNumEpochs"] = split[1]
+        modelConfiguration[modelID]["iNumEpochs"] = split[1].strip()
 
     def Save(self):
         startingDate = self.modelConfiguration['General']['dtStartingDate']
