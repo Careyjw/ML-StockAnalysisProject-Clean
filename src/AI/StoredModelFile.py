@@ -32,8 +32,8 @@ class StoredModelFile:
 
     @classmethod
     def parseConfigurationAdditions(cls, fileHandle, modelConfiguration):
-        endingDate = float(fileHandle.readline())
         startingDate = float(fileHandle.readline())
+        endingDate = float(fileHandle.readline())
         clusteredStocks = fileHandle.readline()
         iNumExamples = int(fileHandle.readline())
 
@@ -44,14 +44,17 @@ class StoredModelFile:
             modelConfiguration[modelID][split[0]] = split[1]
             line = fileHandle.readline()
 
-        if not len(clusteredStocks) == 0:
-            split = clusteredStocks.split(',')
+        if not len(clusteredStocks.strip()) == 0:
+            split = clusteredStocks.strip().split(',')
             clusteredStocks = split
+        else:
+            clusteredStocks = []
         endingDate = date.fromtimestamp(endingDate)
         startingDate = date.fromtimestamp(startingDate)
         modelConfiguration['General']['dtStartingDate'] = startingDate
         modelConfiguration['General']['dtEndingDate'] = endingDate
         modelConfiguration['General']['lsClusteredStocks'] = clusteredStocks
+        modelConfiguration['General']['iNumberDaysPerExample'] = iNumExamples
 
     @classmethod
     def Load(cls, filePath : str, modelConfiguration):
