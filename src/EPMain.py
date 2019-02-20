@@ -5,9 +5,16 @@ from getpass import getpass
 
 def parseArgs():
     argParser = ArgumentParser(description="Evaluation and Prediction main file. Must be runa fter Model Training has generated at least one model")
-    argParser.add_argument("-dp", dest="dp", default=getpass("Database Password:"), help="Password required to access the database")
-    argParser.add_argument("-ep", dest="ep", default=getpass("Email System Password:"), help = "Password required for accessing email system")
-    return argParser.parse_args()
+    argParser.add_argument("-dp", dest="dp", default="", help="Password required to access the database")
+    argParser.add_argument("-ep", dest="ep", default="", help = "Password required for accessing email system")
+    
+    namespace = argParser.parse_args()
+    if(namespace.dp == ""):
+        namespace.dp = getpass("Database Password:")
+    if (namespace.ep == ""):
+        namespace.ep = getpass("Email System Password:")
+    
+    return namespace
 
 
 if __name__ == "__main__":
