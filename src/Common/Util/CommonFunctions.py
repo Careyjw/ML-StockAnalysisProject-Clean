@@ -10,7 +10,7 @@ import sys
 def loginCredentialAssembling (password : str) -> List[str]:
     '''Assembles login credentials with the given password'''
     config = config_handling()
-    config[3] = password
+    config[2] = password
     return config
 
 def getModelFiles(pathBase : str) -> List[str]:
