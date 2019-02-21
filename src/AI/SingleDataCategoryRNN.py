@@ -6,7 +6,7 @@
 from AI.AbsAIModel import Abs_AIModel
 from Data.ModelDataProcessing.SCDataGeneration import translateDataRetrievalMethod
 from Data.Structures.ClusteredStockStorage import ClusteredStockStorage
-
+from datetime import datetime
 
 import numpy as np
 import math
@@ -100,6 +100,13 @@ class SingleDataCategoryRNN (Abs_AIModel):
                 numCorrect += 1
         return numCorrect / numExamples
 
+    def __genPrediction(self, dataStorage):
+        x = dataStorage.extractPredictionData()
+        predicted = np.argmax(self.forward_prop(x)[0][-1])
+        return dataStorage.deNormalizationFunction(predicted)
+        
+        
+
 
     def Evaluate(self, modelConfiguration):
         '''Evaluates the model using the stock list provided in modelConfiguration
@@ -109,11 +116,17 @@ class SingleDataCategoryRNN (Abs_AIModel):
         dataStorage = self.__getData(modelConfiguration)
         return self.__calculateAccuracy(dataStorage)
 
-    def Predict (self, clusteredStocks : 'ClusteredStockStorage'):
+    def Predict (self, modelConfiguration):
         '''Makes a prediction using the most recent data stored in the database
         :return: Denormalized prediction
         '''
-        raise NotImplementedError
+        modelConfiguration['General']['dtEndingDate'] = datetime.now()
+        modelConfiguration['General']['bPredict'] = True
+        dataStorage = self.__getData(modelConfiguration)
+        return self.__genPrediction(dataStorage)
+
+
+        
 
     def forward_prop (self, x):
         '''

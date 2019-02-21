@@ -57,22 +57,33 @@ def fillTrainingDataStorage(storage, trainingData, targetData):
 
 def volumeCategoryDataRetrieval(argHelper : 'SDCDataRetrievalArgumentHelper'):
     args = argHelper.args
+
     startDate = args['startDate']
     endDate = startDate + timedelta(365)
     trainingTickers = args['clusteredStockStorage'].getTrainingTickers()
-
     volDataProcessor = VolumeDataProcessor(args['loginCredentials'])
+
+    if ("predict" in args):
+        sourceStorages = useSpecializedDataProcessor(args['dataProcessingMethod'], volDataProcessor, startDate, endDate)
+        dataStorage = [x.data for x in sourceStorages.tickers if x.ticker in trainingTickers]
+        dataStorage = combineDataSets(dataStorage)
+        predictionDataStorage = RNNTrainingDataStorage(args['normalizationFunction'], args['denormalizationFunction'])
+        predictionDataStorage.addPredictionData(dataStorage[-args['numExamples']:])
+        volDataProcessor.close()
+        return predictionDataStorage
+    
     targetDataProcessor = DataProcessor(args['loginCredentials'])
     
     sourceDataStorages = useSpecializedDataProcessor(args['dataProcessingMethod'], volDataProcessor, startDate, endDate)
     trainingData = produceTrainingExampleSets(sourceDataStorages, args['numExamples'], trainingTickers)
-    volDataProcessor.close()
 
     sourceDataStorages = useGeneralDataProcessor(args['dataProcessingMethod'], targetDataProcessor, startDate, endDate, args['targetCategory'])
     targetData = produceTargetExampleSets(sourceDataStorages, args['numExamples'], trainingTickers)
     
     trainingDataStorage = RNNTrainingDataStorage(args['normalizationFunction'], args['denormalizationFunction'])
     fillTrainingDataStorage(trainingDataStorage, trainingData, targetData)
+    targetDataProcessor.close()
+    volDataProcessor.close()
     return trainingDataStorage
     
     
@@ -96,11 +107,15 @@ class SDCDataRetrievalArgumentHelper:
         startDate = modelConfiguration['General']['dtStartingDate']
         loginCredentials = modelConfiguration['General']['lsLoginCredentials']
         iNumExamples = int(modelConfiguration['General']['iNumberDaysPerExample'])
+        if not (modelConfiguration['General']['bPredict'] == None):
+            self.args['predict'] = True
+
 
         self.args['startDate'] = startDate
         self.args['loginCredentials'] = loginCredentials
         self.args['clusteredStockStorage'] = self.__coallateClusteredStocks(modelConfiguration) 
         self.args['numExamples'] = iNumExamples
+        
 
     def addStartDate(self, startDate):
         self.args['startDate'] = startDate
