@@ -13,6 +13,7 @@ from Common.Util.CommonFunctions import config_handling, get_stock_list, modelCo
 from configparser import ConfigParser
 
 from argparse import ArgumentParser
+from getpass import getpass
 
 from os import cpu_count, path
 from datetime import datetime, timedelta
@@ -21,9 +22,12 @@ from Common.CommonValues import modelStoragePathBase, evaluationModelStoragePath
 def parseArgs():
     argParser = ArgumentParser(description="Module for training Recurrent Neural Networks on Volumetric data to predict stock price movements")
     argParser.add_argument('-modelID', dest='id', type=str, help="ID of the model to train", required=True)
-    argParser.add_argument('-p', dest='p', type=str, help="Password of the database to use for login", required=True)
+    argParser.add_argument('-p', dest='p', type=str, help="Password of the database to use for login", default = "")
+    namespace = argParser.parse_args()
+    if (namespace.p == ""):
+        namespace.p = getpass("Database Password:")
 
-    return argParser.parse_args()
+    return namespace
 
 def verifyStoragePathsExist():
     if not path.exists(modelStoragePathBase.format('.')):
