@@ -6,6 +6,7 @@ devClientFilter = None
 def _instantiateClientFilters():
     devClientFilter = EClientFilter()
     devClientFilter.addWhitelistEntry("prediction", [])
+    devClientFilter.addWhitelistEntry("evaluation", [])
     
 
 

@@ -35,12 +35,12 @@ def AssembleEmail(predictions: List[tuple]) -> "EMessage":
     return retTemplate    
 
 def PushEmails(clientList:List["EClient"],eMessage, emailSys):
-    for client in ClientList:
+    for client in clientList:
         sendMsg = eMessage.replaceKey("{customer}",client.clientName)
         emailSys.sendMessage(sendMsg,client)
 
 def Predict(loginCredentials, emailSys, clients):
-    models = LoadModels(loginCredentials)
+    models = LoadModel(loginCredentials)
     Predictions= predictModel(models)
     template=AssembleEmail(Predictions)
     PushEmails(clients,template,emailSys)

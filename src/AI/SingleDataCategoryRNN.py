@@ -113,6 +113,7 @@ class SingleDataCategoryRNN (Abs_AIModel):
         Returns a percentage accuracy (float)'''
         modelConfiguration['General']['dtStartingDate'] = modelConfiguration['General']['dtStartingDate'] + timedelta(365)
         modelConfiguration['General']['dtEndingDate'] = modelConfiguration['General']['dtEndingDate'] + timedelta(365)
+        modelConfiguration['General']['bPredict'] = False
         dataStorage = self.__getData(modelConfiguration)
         return self.__calculateAccuracy(dataStorage)
 

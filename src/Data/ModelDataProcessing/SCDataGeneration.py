@@ -107,7 +107,7 @@ class SDCDataRetrievalArgumentHelper:
         startDate = modelConfiguration['General']['dtStartingDate']
         loginCredentials = modelConfiguration['General']['lsLoginCredentials']
         iNumExamples = int(modelConfiguration['General']['iNumberDaysPerExample'])
-        if not (modelConfiguration['General']['bPredict'] == None):
+        if not (modelConfiguration['General']['bPredict'] == False):
             self.args['predict'] = True
 
 
