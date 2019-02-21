@@ -87,6 +87,7 @@ class SingleDataCategoryRNN (Abs_AIModel):
         return dataRetrievalMethod(argHelper)
     
     def Train(self, modelConfiguration):
+        modelConfiguration['General']['bPredict'] = False
         dataStorage = self.__getData(modelConfiguration)
         self.trainEpoch_BatchGradientDescent(dataStorage, self.numEpochs)
 
@@ -96,7 +97,8 @@ class SingleDataCategoryRNN (Abs_AIModel):
         numCorrect = 0
         for i in range(numExamples):
             predicted = np.argmax(self.forward_prop(X[i])[0][-1])
-            if (Y[i][predicted] == 1):
+            #print(Y[i][-1], predicted)
+            if (Y[i][-1] == predicted):
                 numCorrect += 1
         return numCorrect / numExamples
 
