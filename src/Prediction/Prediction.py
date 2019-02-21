@@ -15,7 +15,11 @@ def LoadModel(loginCredentials:List[str]) -> List["StoredModelFile"]:
         models.append(StoredModelFile.Load(path,modelConfiguration))
     return models
 def predict(models:List["StoredModelFile"]) -> List[tuple]:
-    
+    predictions=[]
+    for model in models:
+        prediction=model.Predict()
+        predictions.append((model,prediction))
+    return predictions
 #template
 
 #pushEmail
