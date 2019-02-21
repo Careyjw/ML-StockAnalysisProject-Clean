@@ -27,6 +27,9 @@ class StoredModelFile:
     def Evaluate(self):
         return self.__StoredModel.Evaluate(self.modelConfiguration)
 
+    def Predict(self):
+        return self.__StoredModel.Predict(self.modelConfiguration)
+        
     def Train(self):
         self.__StoredModel.Train(self.modelConfiguration)
 
