@@ -20,8 +20,6 @@ How to use:
 		-dp= password for database access, can be passed in or typed at prompt that will appear
 		-ep= password for email system, can be passed in or typed at prompt that will appear
 	
-	will prompt for database and email passwords
-	
 Team:
 Jim Carey 
 Colton Freitas 
