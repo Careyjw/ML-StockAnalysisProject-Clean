@@ -1,0 +1,15 @@
+[<frame>Clustering and Training |
+
+[ModelTrainingPipeline | [Methods | usePipeline()]];
+[TrainingFunctionStorage | [Methods | ...] | [Variables | IDs | ...]]
+[TrainingFunctionStorage] Pass Methods -> [ModelTrainingPipeline]
+
+[ClusteringFunctionStorage | 
+[Methods | ...]
+[ClusteringFunctionUtils | [Methods | ...]]
+] Pass Methods -> [ModelTrainingPipeline]
+
+]
+#fill: #edefe0; #adafa0;
+#stroke: #000000
+#title: TrainingPackageClasses
