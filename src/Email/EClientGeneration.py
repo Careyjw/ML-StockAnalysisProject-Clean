@@ -7,4 +7,5 @@ def genClients():
     '''
     jimClient = EClient("Jim Carey", "careyjw@plu.edu", devClientFilter)
     coltonClient = EClient("Colton Freitas", "freitacr@plu.edu", devClientFilter)
-    return [jimClient, coltonClient]
+    maxClient = EClient("Max Staples", "staplema@plu.edu", devClientFilter)
+    return [jimClient, coltonClient, maxClient]
