@@ -1,0 +1,8 @@
+image: python:3.6.8-stretch
+
+before_script:
+    - python -m pip install -r requirements.txt
+    
+test:
+    script:
+        - python -c "print('Hello World')"
