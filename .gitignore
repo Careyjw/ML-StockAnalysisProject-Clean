@@ -1,6 +1,6 @@
 /configuration_data/
 /src/**/__pycache__
 /model_storage/
-.project
-.pydevproject
+/*.project
+/*.pydevproject
 /.vscode/
