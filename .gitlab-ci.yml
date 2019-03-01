@@ -8,4 +8,4 @@ test:
     script:
         - cd src
         - pwd 
-        - python src/RunUnitTests.py
+        - python ./src/RunUnitTests.py
