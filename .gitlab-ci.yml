@@ -6,4 +6,5 @@ before_script:
 test:
     script:
         - cd src
+        - pwd
         - python -m unittest discover -v -s ./UnitTest -t . -p *test.py
