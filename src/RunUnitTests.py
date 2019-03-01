@@ -4,7 +4,8 @@ from UnitTest import EClientFilterTest
 from UnitTest import EMessageTest
 from UnitTest.EPTesting import LoginCredentialAssemblingTest
 
-
+class FailedTestError(Exception):
+    pass
 
 if __name__ == "__main__":
     loader = unittest.TestLoader()
@@ -14,4 +15,6 @@ if __name__ == "__main__":
     suite.addTest(loader.loadTestsFromModule(LoginCredentialAssemblingTest))
 
     runner = unittest.TextTestRunner(verbosity=3)
-    runner.run(suite)
+    res = runner.run(suite)
+    if (len(res.errors) > 0):
+        raise FailedTestError("One or more tests failed!")
