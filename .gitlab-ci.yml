@@ -2,9 +2,10 @@ image: python:3.6.8-stretch
 
 before_script:
     - python -m pip install -r requirements.txt
+    - apt-get update -qq && apt-get install -y -qq mysql-server
     
 test:
     script:
         - cd src
-        - pwd
-        - python -m unittest discover -v -s ./UnitTest -t . -p *test.py
+        - pwd 
+        - python src/RunUnitTests.py
