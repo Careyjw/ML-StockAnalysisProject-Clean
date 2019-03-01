@@ -10,5 +10,5 @@ class LoginCredentialAssemblingTest(TestCase):
         test = loginCredentialAssembling(password)
         self.assertEqual(config[0], test[0])
         self.assertEqual(config[1], test[1])
-        self.assertEqual(config[2], test[2])
-        self.assertEqual(password, test[3])
+        self.assertEqual(config[3], test[3])
+        self.assertEqual(password, test[2])

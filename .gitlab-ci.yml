@@ -5,4 +5,5 @@ before_script:
     
 test:
     script:
-        - python -c "print('Hello World')"
+        - cd src
+        - python -m unittest discover -v -s ./UnitTest -t . -p *test.py
