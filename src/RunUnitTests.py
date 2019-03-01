@@ -17,4 +17,4 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=3)
     res = runner.run(suite)
     if (len(res.errors) > 0):
-        raise FailedTestError("One or more tests failed!")
+        exit(1)
