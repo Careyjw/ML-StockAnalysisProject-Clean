@@ -3,7 +3,11 @@ image: python:3.6.8-stretch
 before_script:
     - python -m pip install -r requirements.txt
     - apt-get update -qq && apt-get install -y -qq mysql-server
+    - service mysql start
     
 test:
     script:
         - python ./src/RunUnitTests.py
+        
+after_script:
+    service mysql stop
