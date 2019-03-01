@@ -6,6 +6,4 @@ before_script:
     
 test:
     script:
-        - cd src
-        - pwd 
         - python ./src/RunUnitTests.py
