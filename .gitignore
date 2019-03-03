@@ -4,3 +4,4 @@
 /*.project
 /*.pydevproject
 /.vscode/
+/src/.vscode/*
