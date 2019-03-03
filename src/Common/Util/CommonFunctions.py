@@ -67,6 +67,39 @@ def config_handling():
         host = parser.get('login_credentials', 'host')
     return [host, user, None, database]
 
+
+def writeModelGeneral(parser):
+    parser.add_section('General')
+    parser.set('General', 'iMaxProcesses', '-1')
+    parser.set('General', 'bEvaluationTraining', 'True')
+    parser.set('General', 'iMaxTrainingTickers', '4')
+    parser.set('General', 'fMinimumSimilarity', '.6')
+    parser.set('General', 'iNumberDaysPerExample', '14')
+
+
+def writeModelVMDSC(parser):
+    parser.add_section('VMDSC')
+    parser.set('VMDSC', 'iHiddenStateSize', '200')
+    parser.set('VMDSC', 'iBackpropagationTruncationAmount', '5')
+    parser.set('VMDSC', 'fLearningRate', '.1')
+    parser.set('VMDSC', 'iLossEvalEpochs', '5')
+    parser.set('VMDSC', 'sClusteringMethod', 'MD')
+    parser.set('VMDSC', 'iNumEpochs', '1500')
+    parser.set('VMDSC', 'iInputSize', '3')
+
+
+def modelWriteDefaultConfigs(parser, filePosition: str):
+    writeModelGeneral(parser)
+    fp = None
+    try:
+        fp = open(filePosition, 'w')
+    except FileNotFoundError:
+        path.os.mkdir(path.split(filePosition)[0])
+        fp = open(filePosition, 'w')
+    parser.write(fp)
+    fp.close()
+
+
 def modelConfigHandling():
     '''Does all configuration handling using configparser package
     Uses file location that is build into this module,
