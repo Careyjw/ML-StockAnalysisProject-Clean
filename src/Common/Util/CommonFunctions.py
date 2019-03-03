@@ -31,7 +31,12 @@ def write_default_configs(parser, file_position):
     parser.set('login_credentials', 'user', 'root')
     parser.set('login_credentials', 'database', 'stock_testing')
     parser.set('login_credentials', 'host', 'localhost')
-    fp = open(file_position, 'w')
+    fp = None
+    try:
+        fp = open(file_position, 'w')
+    except FileNotFoundError:
+        path.os.mkdir(path.split(file_position)[0])
+        fp = open(file_position, 'w')
     parser.write(fp)
     fp.close()
 
