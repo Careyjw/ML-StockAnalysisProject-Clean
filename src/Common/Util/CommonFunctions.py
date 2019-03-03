@@ -1,5 +1,7 @@
-from Common.CommonValues import configurationFileLocation, stockTickerFileLocation, modelConfigurationFileLocation, modelConfiguration
-from AI.SingleDataCategoryRNN import SingleDataCategoryRNN
+from Common.CommonValues import configurationFileLocation
+from Common.CommonValues import stockTickerFileLocation
+from Common.CommonValues import modelConfigurationFileLocation
+from Common.CommonValues import modelConfiguration
 
 from configparser import ConfigParser, NoSectionError, NoOptionError
 from os import listdir
@@ -7,26 +9,30 @@ from os import path
 from typing import List
 import sys
 
-def loginCredentialAssembling (password : str) -> List[str]:
+
+def loginCredentialAssembling(password: str) -> List[str]:
     '''Assembles login credentials with the given password'''
     config = config_handling()
     config[2] = password
     return config
 
-def getModelFiles(pathBase : str) -> List[str]:
+
+def getModelFiles(pathBase: str) -> List[str]:
     '''Returns a list of model files in the pathBase directory
     Does not return sub directories
     '''
     fileList = listdir(pathBase.format('.'))
-    return [pathBase.format(x) for x in fileList if not path.isdir(pathBase.format(x))]
+    return [pathBase.format(x) for x in fileList if
+            not path.isdir(pathBase.format(x))]
+
 
 def write_default_configs(parser, file_position):
     '''Creates the default configuration file in file_position with default values
     :param parser: ConfigParser object to write default configuration with
-    :param file_position: String containing the path of the file to write the configuration to
+    :param file_position: String containing the path of the file
+            to write the configuration to
 
     '''
-    
     parser.add_section('login_credentials')
     parser.set('login_credentials', 'user', 'root')
     parser.set('login_credentials', 'database', 'stock_testing')
@@ -40,10 +46,12 @@ def write_default_configs(parser, file_position):
     parser.write(fp)
     fp.close()
 
+
 def config_handling():
     '''Does all of the configuration handling using the configparser package
-    This uses a file location hard-built into this module, namely configurationFileLocation
-    This function has the ability to write said file as well with default values
+    This uses a file location hard-built into this module,
+        namely configurationFileLocation
+    This function has the ability to create file with default values
     @return: List of login credentials
     @rtype: [String, String, String, String]
     '''
@@ -110,15 +118,19 @@ def modelConfigHandling():
         fp = open(modelConfigurationFileLocation, 'r')
         fp.close()
     except FileNotFoundError:
-        print("Model Configuration File not found: {0}\nPlease create a valid configuration file for model configuration.", file=sys.stderr)
+        print(
+            "Model Configuration File not found: {0}" +
+            "Please create a valid configuration file",
+            file=sys.stderr
+            )
         modelWriteDefaultConfigs(parser)
     configFile = open(modelConfigurationFileLocation, 'r')
     parser.read_file(configFile)
     configFile.close()
 
+
 def get_stock_list():
     '''Obtains a list of all stock tickers to attempt to download
-    
     '''
     file = open(stockTickerFileLocation, 'r')
     return_data = []
