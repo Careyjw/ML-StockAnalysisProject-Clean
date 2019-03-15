@@ -39,8 +39,11 @@ def PushEmails(clientList:List["EClient"],eMessage, emailSys):
         sendMsg = eMessage.replaceKey("{customer}",client.clientName)
         emailSys.sendMessage(sendMsg,client)
 
-def Predict(loginCredentials, emailSys, clients):
+def Predict(loginCredentials, emailSys, clients, printOutputToScreen):
     models = LoadModel(loginCredentials)
     Predictions= predictModel(models)
     template=AssembleEmail(Predictions)
-    PushEmails(clients,template,emailSys)
+    if not printOutputToScreen:
+        PushEmails(clients, template, emailSystem)
+    else:
+        print(template)
