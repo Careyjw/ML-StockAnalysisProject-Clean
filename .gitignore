@@ -4,3 +4,4 @@
 /*.pydevproject
 /.vscode/
 /src/.vscode/*
+/log.txt
