@@ -8,11 +8,21 @@ Contains specialized methods to download stock data from Yahoo
 '''
 
 from Download.SharedUtilities import openURL
+from Download.GlobalDownloadLogger import getLogger
 from datetime import datetime as dt
 from Data.Structures.SharedDataStorageClasses import TickerDataStorage
 
-crumbURL = 'https://finance.yahoo.com/quote/AAPL?p=AAPL'
+#crumbURL = 'https://finance.yahoo.com/quote/AAPL?p=AAPL'
+crumbURL = 'https://finance.yahoo.com/quote/%5EIXIC?p=^IXIC'
 baseURL = 'https://query1.finance.yahoo.com/v7/finance/download/{0}?period1={1}&period2={2}&interval=1d&events=history&crumb={3}'
+
+class ConversionError (Exception):
+
+    def __init__(self, cause):
+        self.cause = cause
+
+    def __str__(self):
+        return self.cause
 
 def getCookieAndCrumb():
     '''Obtains a cookie and crumb from the Yahoo servers
@@ -80,39 +90,59 @@ def convertString(in_str, flag='float'):
     @rtype: float or int, depending on the flag, or None if TypeError occurs
     '''
     if flag == 'float':
-        try:
-            ret = float(in_str)
-        except ValueError:
-            ret = -1
-        except TypeError:
-            ret = None
+        ret = float(in_str)
     elif flag == 'int':
-        try:
-            ret = int(in_str)
-        except ValueError:
-            ret = -1
-        except TypeError:
-            ret = None    
-    
+        ret = int(in_str)    
     return ret
 
 
-def formatDayData(data):
+def formatDayData(data, ticker):
     '''Formats the provided data string into storage format
     @param data: Data string to format
     @type data: string
     @return: Array of data extracted and formatted from string
     @rtype: [datetime.datetime, float, float, float, float, float, int]
     '''
-    
+    logger = getLogger()
     split = data.rstrip().split(",")
     day = dt.strptime(split[0], "%Y-%m-%d")
-    open_price = convertString(split[1])
-    high_price = convertString(split[2])
-    low_price = convertString(split[3])
-    close_price = convertString(split[4])
-    adj_close = convertString(split[5])
-    volume_data = convertString(split[6], flag='int')
+    try:
+        try:
+            open_price = convertString(split[1])
+        except ValueError as e:
+            logger.logException(e)
+            raise ConversionError("Error converting opening_price, marking all rows as -1")
+        try:
+            high_price = convertString(split[2])
+        except ValueError as e:
+            logger.logException(e)
+            raise ConversionError("Error converting high_price, marking all rows as -1")
+        try:
+            low_price = convertString(split[3])
+        except ValueError as e:
+            logger.logException(e)
+            raise ConversionError("Error converting low_price, marking all rows as -1")
+        try:
+            close_price = convertString(split[4])
+        except ValueError as e:
+            logger.logException(e)
+            raise ConversionError("Error converting close_price, marking all rows as -1")
+        try:
+            adj_close = convertString(split[5])
+        except ValueError as e:
+            logger.logException(e)
+            raise ConversionError("Error converting adj_close, marking all rows as -1")
+        try:
+            volume_data = convertString(split[6], flag='int')
+        except ValueError as e:
+            logger.logException(e)
+            raise ConversionError("Error converting volume_data, marking all rows as -1")
+
+    except ConversionError as e:
+        logger.logWarning("Error converting field specified below for date: {} and ticker {}".format(split[0], ticker))
+        logger.logException(e)
+        return [day, -1, -1, -1, -1, -1, -1]
+
     return [day, open_price, high_price, low_price, close_price, adj_close, volume_data]
     
 
@@ -144,7 +174,7 @@ def getDataFromURL(url, ticker, cookie):
             raise status[1];
     dataStorage = TickerDataStorage(ticker)
     for dayData in data:
-        dataStorage.addData(formatDayData(dayData))
+        dataStorage.addData(formatDayData(dayData, ticker))
     return dataStorage;
 
 

@@ -10,8 +10,11 @@ that are not needed to be visible for the calling method(s)
 '''
 
 from Download.YahooDataDownloader import getCookieAndCrumb, buildURL, getDataFromURL
+from urllib.error import HTTPError, URLError
 from Data.Structures.SharedDataStorageClasses import SourceDataStorage
+from Download.GlobalDownloadLogger import getLogger
 from datetime import datetime as dt
+
 
 
 def DownloadDataYahoo (tickerList):
@@ -21,12 +24,34 @@ def DownloadDataYahoo (tickerList):
         @return Storage object containing obtained data
         @rtype: SourceDataStorage
     '''
+    logger = getLogger()
     dataStorage = SourceDataStorage("Yahoo")
-    cookie, crumb = getCookieAndCrumb()
+    cookie, crumb = [None, None]
+    try:
+        cookie, crumb = getCookieAndCrumb()
+    except HTTPError as e:
+        logger.logException(e)
+        logger.logWarning("Error is irrecoverable for Downloading Yahoo Data, skipping...")
+        return dataStorage
+    except URLError as e:
+        logger.logException(e)
+        logger.logWarning("Error is irrecoverable, and may be the result of trouble establishing a connection. Skipping yahoo downloading.")
+        return dataStorage
+
     for ticker in tickerList:
         today = dt.now()
         downloadURL = buildURL(ticker, 0, round(today.timestamp()), crumb)
-        tickerDataStorage = getDataFromURL(downloadURL, ticker, cookie)
+        tickerDataStorage = None
+        try:
+            tickerDataStorage = getDataFromURL(downloadURL, ticker, cookie)
+        except HTTPError as e:
+            logger.logException(e)
+            logger.logWarning("Error retrieving data for {0}, skipping...".format(ticker))
+            continue
+        except URLError as e:
+            logger.logException(e)
+            logger.logWarning("Error retrieving data for {0}, skipping...".format(ticker))
+            continue
         dataStorage.addTickerDataStorage(tickerDataStorage)
     return dataStorage
     
