@@ -44,7 +44,7 @@ def connect(host, user, password, database = None):
             ret = connector.connect(host = host, user = user, password = password)
         else:
             ret = connector.connect(host = host, user = user, password = password, database = database)
-    except (SQLError, Exception) as e:
+    except SQLError as e:
         ret = [False, e]
     return [True, ret]
 
@@ -68,9 +68,12 @@ class MYSQLDataManipulator:
         @type database: String or None
         '''
         connectionStatus = connect(host, user, password, database)
-        self.connection = connectionStatus[1]
+        if (connectionStatus[0]):
+            self.connection = connectionStatus[1]
+        else:
+            raise connectionStatus[1]
         if (type(self.connection) == type([])):
-            raise ConnectionError(self.connection)
+            raise ConnectionError(self.connection[1])
         self.currentDatabase = database
         self.cursor = None
         

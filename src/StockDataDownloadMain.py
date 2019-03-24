@@ -36,7 +36,14 @@ if __name__ == '__main__':
     login_credentials = loginCredentialAssembling(namespace.dp)
     stock_list = get_stock_list()
     YahooData = DownloadDataYahoo(stock_list)
-    data_manager = MYSQLDataManipulator(login_credentials[0], login_credentials[1], login_credentials[2])
+    data_manager = None
+    try:
+        data_manager = MYSQLDataManipulator(login_credentials[0], login_credentials[1], login_credentials[2])
+    except Exception as e:
+        logger = getLogger()
+        logger.logException(e)
+        logger.logWarning("Exception is irrecoverable, exiting...")
+        exit(2)
     createStockDatabase(data_manager)
     clearDataFromStockListTable(data_manager)
     uploadData(YahooData, data_manager)
